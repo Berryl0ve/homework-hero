@@ -212,16 +212,11 @@ import { initializeApp } from "firebase/app";
   appId: "1:885878491270:web:ea7a5e1c1ce178fd1ea907"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-        
-        apiKey: "YOUR_API_KEY_HERE",
-        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT_ID.appspot.com",
-        messagingSenderId: "...",
-        appId: "..."
-    };
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);  // <--- You just fixed this
+    const db = getFirestore(app);               // <--- Make sure this says 'app'
+    const auth = getAuth(app);                  // <--- Make sure this says 'app'
+
 
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
