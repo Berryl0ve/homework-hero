@@ -206,19 +206,17 @@ import { initializeApp } from "firebase/app";
       // --- 1. CONFIGURATION ---
     // (Paste your keys inside the quotes below. Keep the quotes straight!)
     const firebaseConfig = {
-        apiKey: "PASTE_YOUR_API_KEY_HERE",
-        authDomain: "PASTE_YOUR_AUTH_DOMAIN_HERE",
-        projectId: "PASTE_YOUR_PROJECT_ID_HERE",
-        storageBucket: "PASTE_YOUR_STORAGE_BUCKET_HERE",
-        messagingSenderId: "PASTE_YOUR_SENDER_ID_HERE",
-        appId: "PASTE_YOUR_APP_ID_HERE"
-    };
+  apiKey: "AIzaSyD0HePOf2DBOPzp5XPjkXjxYWuhs7-WQdQ",
+  authDomain: "homeworkhero-f2a15.firebaseapp.com",
+  projectId: "homeworkhero-f2a15",
+  storageBucket: "homeworkhero-f2a15.firebasestorage.app",
+  messagingSenderId: "885878491270",
+  appId: "1:885878491270:web:ea7a5e1c1ce178fd1ea907"
+};
 
     // --- 2. INITIALIZE ---
     // (This line connects the keys you just pasted)
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
 
 
     // Initialize Firebase
