@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homework Hero: Cloud Edition</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- PROFESSIONAL STYLING --- */
+        :root {
+            --primary: #4f46e5; /* Indigo */
+            --primary-dark: #4338ca;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; min-height: 100vh; }
+        
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .hidden { display: none !important; }
+
+        /* Cards */
+        .card { background: var(--card-bg); border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 20px; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+        /* Typography */
+        h1, h2, h3 { margin-top: 0; }
+        h1 { font-weight: 800; color: var(--primary); }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 0.95rem; }
+        .btn:active { transform: scale(0.98); }
+        .btn-full { width: 100%; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-outline { background: transparent; border: 2px solid #e5e7eb; color: var(--text-muted); }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* Inputs */
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-family: inherit; box-sizing: border-box; }
+        input:focus { outline: 2px solid var(--primary); border-color: transparent; }
+
+        /* Layouts */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Status Colors */
+        .status-pending { background: var(--warning); }
+        .status-review { background: var(--primary); }
+        .status-approved { background: var(--success); }
+        .status-rejected { background: var(--danger); }
+
+        /* Specific Features */
+        .streak-fire { font-size: 1.5rem; color: #f59e0b; margin-right: 5px; }
+        .proof-img { max-width: 100%; border-radius: 8px; border: 2px solid #e5e7eb; margin-top: 10px; }
+        
+        /* Loading Overlay */
+        #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); z-index: 1000; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+
+        /* Responsive */
+        @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div id="loadingOverlay" class="hidden">Connecting to Cloud...</div>
+
+<div class="container">
+    
+    <div id="view-landing" class="card" style="text-align: center; padding: 50px;">
+        <h1 style="font-size: 2.5rem;">Homework Hero ☁️</h1>
+        <p style="color: var(--text-muted); margin-bottom: 30px;">The Professional Student Management System</p>
+        
+        <div class="grid-2">
+            <div onclick="showView('view-login')" class="card" style="cursor: pointer; background: #eff6ff; border: 2px solid transparent;">
+                <h3>🔑 Login</h3>
+                <p>Access your existing dashboard</p>
+            </div>
+            <div onclick="showView('view-signup')" class="card" style="cursor: pointer; background: #ecfdf5; border: 2px solid transparent;">
+                <h3>📝 New Account</h3>
+                <p>Create a new student profile</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-signup" class="card hidden" style="max-width: 500px; margin: 0 auto;">
+        <h2>Create Account</h2>
+        <input type="text" id="su-name" placeholder="Student Name">
+        <input type="number" id="su-scode" placeholder="Choose 4-Digit Student Code (e.g. 1234)">
+        <input type="number" id="su-pcode" placeholder="Choose 5-Digit Parent Code (e.g. 99999)">
+        <button class="btn btn-primary btn-full" onclick="handleSignup()">Create Profile</button>
+        <button class="btn btn-outline btn-full" style="margin-top:10px;" onclick="showView('view-landing')">Cancel</button>
+    </div>
+
+    <div id="view-login" class="card hidden" style="max-width: 500px; margin: 0 auto;">
+        <h2>Login</h2>
+        <input type="number" id="li-code" placeholder="Enter your 4 or 5 digit code">
+        <button class="btn btn-primary btn-full" onclick="handleLogin()">Enter Portal</button>
+        <button class="btn btn-outline btn-full" style="margin-top:10px;" onclick="showView('view-landing')">Back</button>
+    </div>
+
+    <div id="view-student" class="hidden">
+        <div class="flex-between" style="margin-bottom: 20px;">
+            <div>
+                <h2>Hello, <span id="st-name">Student</span></h2>
+                <div style="font-size: 0.9rem; color: var(--text-muted);">Current Goal: <b id="st-goal">...</b></div>
+            </div>
+            <button class="btn btn-outline" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="grid-2">
+            <div class="card" style="background: linear-gradient(135deg, #4f46e5, #818cf8); color: white;">
+                <h3>💰 My Points</h3>
+                <div style="font-size: 3rem; font-weight: 800;" id="st-points">0</div>
+            </div>
+            <div class="card" style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white;">
+                <h3>🔥 Streak</h3>
+                <div style="font-size: 3rem; font-weight: 800;"><span id="st-streak">0</span> days</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>+ New Assignment</h3>
+            <div class="grid-2">
+                <input type="text" id="new-sub" placeholder="Subject (Math, Science)">
+                <input type="date" id="new-date">
+            </div>
+            <input type="text" id="new-desc" placeholder="Assignment Details">
+            <button class="btn btn-primary btn-full" onclick="addAssignment()">Add Assignment</button>
+        </div>
+
+        <h3>My To-Do List</h3>
+        <div id="st-list"></div>
+    </div>
+
+    <div id="view-parent" class="hidden">
+        <div class="flex-between" style="margin-bottom: 20px; background: #1e293b; color: white; padding: 20px; border-radius: 12px;">
+            <div>
+                <h2 style="color:white; margin:0;">Parent Command Center</h2>
+                <small>Viewing: <span id="pa-st-name">...</span></small>
+            </div>
+            <button class="btn btn-danger" onclick="logout()">Secure Logout</button>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <div class="card">
+                    <h3>🏆 Manage Rewards</h3>
+                    <p>Current Points: <b id="pa-points" style="font-size: 1.2rem;">0</b></p>
+                    <div class="flex-between" style="gap:10px;">
+                        <button class="btn btn-success btn-full" onclick="adjustPoints(10)">+10 Bonus</button>
+                        <button class="btn btn-danger btn-full" onclick="adjustPoints(-10)">-10 Penalty</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Set Goal</h3>
+                    <input type="text" id="pa-goal-input" placeholder="e.g. Pizza Party at 500pts">
+                    <button class="btn btn-primary btn-full" onclick="updateGoal()">Update Goal</button>
+                </div>
+
+                <div class="card">
+                    <h3>📜 History Log</h3>
+                    <div id="pa-history" style="height: 150px; overflow-y: auto; font-size: 0.85rem; color: #666;"></div>
+                </div>
+            </div>
+
+            <div>
+                <h3>Assignments Needing Review</h3>
+                <div id="pa-review-list"></div>
+                
+                <h3 style="margin-top: 30px; color: #666;">All Other Assignments</h3>
+                <div id="pa-all-list"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<input type="file" id="fileInput" accept="image/*" style="display:none">
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+<script>
+    // ==========================================
+    // ⚙️ CONFIGURATION SECTION
+    // ==========================================
+    
+    const firebaseConfig = {
+        // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyD0HePOf2DBOPzp5XPjkXjxYWuhs7-WQdQ",
+  authDomain: "homeworkhero-f2a15.firebaseapp.com",
+  projectId: "homeworkhero-f2a15",
+  storageBucket: "homeworkhero-f2a15.firebasestorage.app",
+  messagingSenderId: "885878491270",
+  appId: "1:885878491270:web:ea7a5e1c1ce178fd1ea907"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+        
+        apiKey: "YOUR_API_KEY_HERE",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "...",
+        appId: "..."
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // ==========================================
+    // 🧠 APP LOGIC
+    // ==========================================
+
+    let currentStudentId = null;
+    let uploadTaskIndex = null;
+    let appData = null; // Local cache of student data
+
+    // --- NAVIGATION ---
+    function showView(viewId) {
+        document.querySelectorAll('.hidden').forEach(el => el.classList.add('hidden')); // Keep overlay hidden
+        document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+        document.getElementById(viewId).classList.remove('hidden');
+    }
+
+    function toggleLoader(show) {
+        const loader = document.getElementById('loadingOverlay');
+        if(show) loader.classList.remove('hidden');
+        else loader.classList.add('hidden');
+    }
+
+    function logout() {
+        currentStudentId = null;
+        appData = null;
+        document.getElementById('li-code').value = '';
+        showView('view-landing');
+    }
+
+    // --- AUTHENTICATION & DATA ---
+
+    async function handleSignup() {
+        const name = document.getElementById('su-name').value;
+        const sCode = document.getElementById('su-scode').value.trim();
+        const pCode = document.getElementById('su-pcode').value.trim();
+
+        if (sCode.length !== 4 || pCode.length !== 5) return alert("Codes must be 4 and 5 digits.");
+
+        toggleLoader(true);
+        // Check if ID exists
+        const docRef = db.collection('students').doc(sCode);
+        const doc = await docRef.get();
+
+        if (doc.exists) {
+            toggleLoader(false);
+            alert("This student code is taken. Try another.");
+            return;
+        }
+
+        // Create new student in Cloud
+        await docRef.set({
+            name: name,
+            parentCode: pCode,
+            points: 0,
+            streak: 0,
+            goal: "Welcome! Set a goal.",
+            lastActive: new Date().toISOString(),
+            assignments: [], // Array of objects
+            history: [`Account created on ${new Date().toLocaleDateString()}`]
+        });
+
+        toggleLoader(false);
+        alert("Account Created! Please Login.");
+        showView('view-login');
+    }
+
+    async function handleLogin() {
+        const code = document.getElementById('li-code').value.trim();
+        if (!code) return;
+
+        toggleLoader(true);
+
+        // 1. Try as Student
+        let doc = await db.collection('students').doc(code).get();
+        
+        if (doc.exists) {
+            currentStudentId = code;
+            setupRealtimeListener(); // Connect live updates
+            return;
+        }
+
+        // 2. Try as Parent (Query all students where parentCode == code)
+        const snapshot = await db.collection('students').where('parentCode', '==', code).get();
+        
+        if (!snapshot.empty) {
+            // Found the student associated with this parent code
+            currentStudentId = snapshot.docs[0].id;
+            setupRealtimeListener(true); // True = Parent Mode
+            return;
+        }
+
+        toggleLoader(false);
+        alert("Code not found.");
+    }
+
+    // --- REALTIME SYNC ENGINE ---
+    // This makes it work across devices instantly
+    function setupRealtimeListener(isParent = false) {
+        db.collection('students').doc(currentStudentId).onSnapshot((doc) => {
+            appData = doc.data();
+            toggleLoader(false);
+            if (isParent) renderParent();
+            else renderStudent();
+        });
+    }
+
+    // --- STUDENT FUNCTIONS ---
+
+    function renderStudent() {
+        document.getElementById('st-name').innerText = appData.name;
+        document.getElementById('st-points').innerText = appData.points;
+        document.getElementById('st-streak').innerText = appData.streak;
+        document.getElementById('st-goal').innerText = appData.goal;
+
+        const list = document.getElementById('st-list');
+        list.innerHTML = '';
+
+        // Sort: Pending first
+        const sorted = appData.assignments.map((a, i) => ({...a, idx: i}))
+            .sort((a,b) => (a.status === 'pending') ? -1 : 1);
+
+        sorted.forEach(task => {
+            let action = '';
+            let badge = getBadge(task.status);
+            
+            if (task.status === 'pending' || task.status === 'rejected') {
+                action = `<button class="btn btn-success btn-full" onclick="triggerUpload(${task.idx})">📸 Upload Proof</button>`;
+            } else if (task.status === 'rejected') {
+                action = `<div style="color:red; font-size:0.9rem; margin-top:5px;">Reason: ${task.rejectReason}</div>`;
+            }
+
+            list.innerHTML += `
+                <div class="card" style="border-left: 5px solid ${getColor(task.status)}">
+                    <div class="flex-between">
+                        <b>${task.subject}</b>
+                        ${badge}
+                    </div>
+                    <p>${task.desc}</p>
+                    <small>Due: ${task.date}</small>
+                    ${task.image ? `<img src="${task.image}" class="proof-img">` : ''}
+                    ${task.rejectReason ? `<p style="color:red; background:#fee; padding:5px; border-radius:4px;">⚠️ Parent: "${task.rejectReason}"</p>` : ''}
+                    <div style="margin-top:10px;">${action}</div>
+                </div>
+            `;
+        });
+        
+        showView('view-student');
+    }
+
+    async function addAssignment() {
+        const sub = document.getElementById('new-sub').value;
+        const date = document.getElementById('new-date').value;
+        const desc = document.getElementById('new-desc').value;
+
+        if(!sub || !date) return alert("Fill in subject and date");
+
+        const newAssignment = {
+            subject: sub,
+            date: date,
+            desc: desc,
+            status: 'pending',
+            image: null,
+            rejectReason: null
+        };
+
+        await db.collection('students').doc(currentStudentId).update({
+            assignments: firebase.firestore.FieldValue.arrayUnion(newAssignment)
+        });
+
+        // Clear inputs
+        document.getElementById('new-sub').value = '';
+        document.getElementById('new-desc').value = '';
+    }
+
+    // --- FILE UPLOAD (COMPRESSED) ---
+    function triggerUpload(originalIndex) {
+        uploadTaskIndex = originalIndex;
+        document.getElementById('fileInput').click();
+    }
+
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        if(e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                // In a real app we'd resize this. For now we save the base64.
+                // NOTE: Large images might hit Firestore limits.
+                const imgStr = evt.target.result;
+                updateAssignment(uploadTaskIndex, { status: 'review', image: imgStr, rejectReason: null });
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    async function updateAssignment(index, updates) {
+        // We have to read, modify, write because Firestore arrays are tricky to update by index
+        let newAssignments = [...appData.assignments];
+        newAssignments[index] = { ...newAssignments[index], ...updates };
+        
+        await db.collection('students').doc(currentStudentId).update({
+            assignments: newAssignments
+        });
+    }
+
+    // --- PARENT FUNCTIONS ---
+
+    function renderParent() {
+        document.getElementById('pa-st-name').innerText = appData.name;
+        document.getElementById('pa-points').innerText = appData.points;
+        document.getElementById('pa-goal-input').placeholder = appData.goal;
+
+        // History Log
+        const histDiv = document.getElementById('pa-history');
+        histDiv.innerHTML = appData.history.map(h => `<div>• ${h}</div>`).join('');
+
+        const reviewList = document.getElementById('pa-review-list');
+        const allList = document.getElementById('pa-all-list');
+        reviewList.innerHTML = '';
+        allList.innerHTML = '';
+
+        appData.assignments.forEach((task, idx) => {
+            const cardHtml = `
+                <div class="card" style="border-left: 5px solid ${getColor(task.status)}">
+                    <div class="flex-between">
+                        <strong>${task.subject}</strong>
+                        ${getBadge(task.status)}
+                    </div>
+                    <p>${task.desc}</p>
+                    ${task.image ? `<a href="${task.image}" target="_blank"><img src="${task.image}" class="proof-img" style="max-height:150px;"></a>` : '<small>No image uploaded</small>'}
+                    
+                    ${task.status === 'review' ? `
+                        <div style="margin-top:15px; display:grid; gap:10px;">
+                            <button class="btn btn-success btn-full" onclick="reviewTask(${idx}, true)">Approve (+Points)</button>
+                            <button class="btn btn-danger btn-full" onclick="reviewTask(${idx}, false)">Reject (Send Back)</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            if (task.status === 'review') reviewList.innerHTML += cardHtml;
+            else allList.innerHTML += cardHtml;
+        });
+
+        showView('view-parent');
+    }
+
+    async function reviewTask(index, approved) {
+        let updates = {};
+        let pointsChange = 0;
+        let historyMsg = "";
+
+        const task = appData.assignments[index];
+
+        if (approved) {
+            updates = { status: 'approved' };
+            pointsChange = 10;
+            historyMsg = `Approved ${task.subject} (+10 pts)`;
+            
+            // Streak Logic (Simple: +1 to streak)
+            await db.collection('students').doc(currentStudentId).update({
+                streak: firebase.firestore.FieldValue.increment(1)
+            });
+
+        } else {
+            const reason = prompt("Reason for rejection?");
+            if (!reason) return;
+            updates = { status: 'rejected', rejectReason: reason };
+            historyMsg = `Rejected ${task.subject}: "${reason}"`;
+        }
+
+        // Update Assignment
+        let newAssignments = [...appData.assignments];
+        newAssignments[index] = { ...newAssignments[index], ...updates };
+
+        await db.collection('students').doc(currentStudentId).update({
+            assignments: newAssignments,
+            points: firebase.firestore.FieldValue.increment(pointsChange),
+            history: firebase.firestore.FieldValue.arrayUnion(historyMsg)
+        });
+    }
+
+    async function adjustPoints(amount) {
+        await db.collection('students').doc(currentStudentId).update({
+            points: firebase.firestore.FieldValue.increment(amount),
+            history: firebase.firestore.FieldValue.arrayUnion(amount > 0 ? `Bonus +${amount}` : `Penalty ${amount}`)
+        });
+    }
+
+    async function updateGoal() {
+        const g = document.getElementById('pa-goal-input').value;
+        if(g) {
+            await db.collection('students').doc(currentStudentId).update({ goal: g });
+            document.getElementById('pa-goal-input').value = '';
+        }
+    }
+
+    // --- UTILS ---
+    function getBadge(status) {
+        const labels = { pending: 'To Do', review: 'Review', approved: 'Done', rejected: 'Redo' };
+        return `<span class="badge status-${status}">${labels[status]}</span>`;
+    }
+    function getColor(status) {
+        const colors = { pending: '#f59e0b', review: '#4f46e5', approved: '#10b981', rejected: '#ef4444' };
+        return colors[status];
+    }
+
+</script>
+</body>
+</html>
