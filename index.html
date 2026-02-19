@@ -1,95 +1,124 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homework Hero: Pro</title>
+    <title>Homework Hero | Clean OS</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --stu: #6366f1; --par: #f43f5e; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
-        .container { max-width: 480px; margin: 0 auto; }
+        :root { --app-bg: #f2f2f7; --card-bg: #ffffff; --text-main: #1c1c1e; --text-sub: #8e8e93; --blue: #007aff; --green: #34c759; --red: #ff3b30; --orange: #ff9500; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--app-bg); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .app-container { max-width: 450px; width: 100%; }
         .hidden { display: none !important; }
-        .card { background: var(--card); padding: 20px; border-radius: 24px; border: 1px solid #334155; margin-bottom: 15px; }
-        input, select { width: 100%; padding: 14px; margin: 8px 0; background: #0f172a; border: 1px solid #475569; border-radius: 12px; color: white; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px; font-size: 16px; }
-        .btn-stu { background: var(--stu); color: white; }
-        .btn-par { background: var(--par); color: white; }
-        .task { background: #334155; padding: 15px; border-radius: 18px; margin: 12px 0; border-left: 6px solid var(--stu); }
-        .task.pending { border-left-color: #fbbf24; }
-        .task.rejected { border-left-color: #ef4444; }
-        .progress-bg { background: #0f172a; height: 14px; border-radius: 7px; overflow: hidden; margin: 12px 0; }
-        .progress-fill { background: linear-gradient(90deg, #6366f1, #a855f7); height: 100%; transition: 1s; width: 0%; }
-        .tab-btn { background: none; color: #94a3b8; width: 48%; padding: 10px; font-size: 14px; border-bottom: 2px solid transparent; border-radius: 0; }
-        .tab-active { color: var(--stu); border-bottom: 2px solid var(--stu); }
+        
+        /* Modern Clean UI */
+        .card { background: var(--card-bg); padding: 24px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); margin-bottom: 20px; }
+        h1, h2, h3, h4 { margin-top: 0; font-weight: 700; }
+        p { margin: 0; color: var(--text-sub); font-size: 14px; }
+        
+        /* Inputs & Buttons */
+        input, select { width: 100%; padding: 16px; margin: 10px 0; background: var(--app-bg); border: none; border-radius: 14px; font-size: 16px; color: var(--text-main); box-sizing: border-box; outline: none; transition: 0.2s; }
+        input:focus { box-shadow: 0 0 0 2px var(--blue); }
+        button { width: 100%; padding: 16px; border-radius: 14px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 5px; }
+        button:active { transform: scale(0.98); }
+        .btn-primary { background: var(--blue); color: white; }
+        .btn-success { background: var(--green); color: white; }
+        .btn-danger { background: var(--red); color: white; }
+        .btn-secondary { background: #e5e5ea; color: var(--text-main); }
+        
+        /* Tasks */
+        .task-list { display: flex; flex-direction: column; gap: 15px; }
+        .task-card { background: var(--card-bg); padding: 20px; border-radius: 16px; border-left: 6px solid var(--blue); box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .task-card.pending { border-left-color: var(--orange); }
+        .task-card.rejected { border-left-color: var(--red); }
+        .task-card.completed { border-left-color: var(--green); opacity: 0.7; }
+        .task-img { width: 100%; border-radius: 12px; margin-top: 15px; border: 1px solid #e5e5ea; }
+        
+        /* Progress & Tabs */
+        .progress-track { background: var(--app-bg); height: 16px; border-radius: 8px; overflow: hidden; margin: 15px 0 5px; }
+        .progress-fill { background: var(--blue); height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tab-row { display: flex; gap: 10px; margin-bottom: 15px; background: #e5e5ea; padding: 4px; border-radius: 16px; }
+        .tab { flex: 1; padding: 10px; text-align: center; border-radius: 12px; font-weight: 600; color: var(--text-sub); cursor: pointer; font-size: 14px; }
+        .tab.active { background: white; color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .badge { float: right; font-size: 11px; padding: 4px 8px; border-radius: 20px; font-weight: 700; text-transform: uppercase; color: white; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1 style="text-align:center;">HERO <span style="color:var(--stu)">PRO</span></h1>
-
-    <div id="view-auth" class="card">
-        <div style="display:flex; justify-content: space-around; margin-bottom: 20px;">
-            <button id="tab-login" class="tab-btn tab-active" onclick="toggleAuthMode('login')">Login</button>
-            <button id="tab-signup" class="tab-btn" onclick="toggleAuthMode('signup')">Sign Up</button>
+<div class="app-container">
+    <div id="view-auth">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="font-size: 32px; color: var(--blue);">Hero</h1>
+            <p>Your secure homework vault.</p>
         </div>
         
-        <h2 id="auth-title" style="margin-top:0;">Hero Login</h2>
-        <input type="text" id="user-name" placeholder="Username">
-        <input type="password" id="user-pin" placeholder="PIN (Student: 4, Parent: 6)">
-        
-        <button class="btn-stu" id="auth-main-btn" onclick="processAuth()">Enter Vault</button>
-        <p id="auth-help" style="font-size: 11px; color: #94a3b8; margin-top: 15px; text-align: center;">
-            Don't have an account? Switch to Sign Up above.
-        </p>
+        <div class="card">
+            <div class="tab-row">
+                <div id="tab-login" class="tab active" onclick="setAuthMode('login')">Log In</div>
+                <div id="tab-signup" class="tab" onclick="setAuthMode('signup')">Sign Up</div>
+            </div>
+            <input type="text" id="auth-user" placeholder="Your Username" autocomplete="off">
+            <input type="password" id="auth-pin" placeholder="PIN (4 digits = Student, 6 = Parent)">
+            <button id="btn-auth" class="btn-primary" onclick="processAuth()">Enter Vault</button>
+            <p id="auth-error" style="color: var(--red); text-align: center; margin-top: 15px; display: none;"></p>
+        </div>
     </div>
 
     <div id="view-main" class="hidden">
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 id="welcome-msg" style="margin:0;">Hero</h3>
-                <button onclick="logout()" style="width:auto; padding:8px 12px; margin:0; background:#334155; font-size:11px;">Logout</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 id="header-name" style="margin: 0;">Hero</h2>
+                <button onclick="logOut()" class="btn-secondary" style="width: auto; padding: 8px 16px; margin: 0; font-size: 13px;">Log Out</button>
             </div>
             
-            <div style="margin-top:15px;">
-                <div style="display:flex; justify-content:space-between; font-size:14px; font-weight: bold;">
-                    <span id="goal-text">No Goal Set</span>
-                    <span id="stat-points" style="color:#fbbf24;">0 PTS</span>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <p style="font-size: 12px; font-weight: bold; text-transform: uppercase;">Current Goal</p>
+                    <h3 id="goal-title" style="margin: 0;">Loading...</h3>
                 </div>
-                <div class="progress-bg"><div id="progress-bar" class="progress-fill"></div></div>
+                <h2 id="stat-points" style="margin: 0; color: var(--blue);">0 / 0</h2>
             </div>
+            <div class="progress-track"><div id="progress-bar" class="progress-fill"></div></div>
         </div>
 
-        <div id="stu-tools" class="hidden">
+        <div id="ui-student" class="hidden">
             <div class="card">
-                <h4 style="margin:0 0 10px 0;">+ New Mission</h4>
-                <input type="text" id="task-title" placeholder="Assignment Name">
-                <div style="display:flex; gap:10px;">
-                    <select id="task-class">
-                        <option>Math</option><option>English</option><option>Science</option><option>History</option>
+                <h3>Create Mission</h3>
+                <input type="text" id="task-name" placeholder="Assignment (e.g., Read Ch. 4)">
+                <div style="display: flex; gap: 10px;">
+                    <select id="task-subject">
+                        <option value="Math">Math</option><option value="Science">Science</option><option value="English">English</option><option value="History">History</option>
                     </select>
                     <input type="date" id="task-date">
                 </div>
-                <button class="btn-stu" onclick="createTask()">Assign to Me</button>
+                <button class="btn-primary" onclick="addTask()">Assign to Me</button>
             </div>
+
             <div class="card">
-                <h4 style="margin:0 0 10px 0;">+ Set Goal</h4>
-                <input type="text" id="goal-name" placeholder="Goal (e.g. PS5)">
-                <input type="number" id="goal-val" placeholder="Points needed">
-                <button class="btn-stu" style="background:#475569" onclick="setGoal()">Update Goal</button>
+                <details>
+                    <summary style="font-weight: 600; cursor: pointer; color: var(--blue);">Edit Goal Settings</summary>
+                    <input type="text" id="goal-input-name" placeholder="What are you saving for?">
+                    <input type="number" id="goal-input-val" placeholder="Total points needed">
+                    <button class="btn-secondary" onclick="updateGoal()">Save Goal</button>
+                </details>
             </div>
         </div>
 
-        <div id="par-tools" class="hidden">
-            <div class="card" style="border-color: var(--par);">
-                <h4 style="margin:0 0 10px 0; color:var(--par);">Parent Master Control</h4>
-                <button class="btn-par" onclick="resetPoints()">Wipe Student Points</button>
+        <div id="ui-parent" class="hidden card" style="border: 2px solid var(--orange);">
+            <h3 style="color: var(--orange);">Parent Controls</h3>
+            <p style="margin-bottom: 15px;">Review pending missions below. Use this button only if you want to reset the student's current points to zero.</p>
+            <button class="btn-secondary" style="color: var(--red);" onclick="resetPoints()">Wipe All Points</button>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 25px 5px 10px;">
+            <h3>Your Missions</h3>
+            <div style="display: flex; gap: 15px; font-size: 14px;">
+                <span id="filter-active" style="cursor: pointer; font-weight: 700; color: var(--blue);" onclick="toggleHistory(false)">Active</span>
+                <span id="filter-history" style="cursor: pointer; color: var(--text-sub);" onclick="toggleHistory(true)">History</span>
             </div>
         </div>
 
-        <h3 style="margin-left:10px;">Mission List</h3>
-        <div id="mission-list"></div>
+        <div id="mission-container" class="task-list"></div>
     </div>
 </div>
 
@@ -98,59 +127,76 @@
     import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
+    // IMPORTANT: To make it save forever, replace these keys with your own Firebase project keys later.
     const firebaseConfig = {
         apiKey: "AIzaSyD0HePOf2DBOPzp5XPjkXjxYWuhs7-WQdQ",
         authDomain: "homeworkhero-f2a15.firebaseapp.com",
         projectId: "homeworkhero-f2a15",
-        storageBucket: "homeworkhero-f2a15.firebasestorage.app",
-        messagingSenderId: "885878491270",
-        appId: "1:885878491270:web:ea7a5e1c1ce178fd1ea907"
+        storageBucket: "homeworkhero-f2a15.firebasestorage.app"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    let currentVault = null;
-    let currentUser = null;
-    let mode = 'login';
+    let authMode = 'login';
+    let sessionUser = null;
+    let vaultData = null;
+    let showHistory = false;
 
-    window.toggleAuthMode = (m) => {
-        mode = m;
-        document.getElementById('tab-login').classList.toggle('tab-active', m === 'login');
-        document.getElementById('tab-signup').classList.toggle('tab-active', m === 'signup');
-        document.getElementById('auth-title').innerText = m === 'login' ? 'Hero Login' : 'Create Account';
-        document.getElementById('auth-main-btn').innerText = m === 'login' ? 'Enter Vault' : 'Register Hero';
+    // --- UI LOGIC ---
+    window.setAuthMode = (mode) => {
+        authMode = mode;
+        document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+        document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
+        document.getElementById('btn-auth').innerText = mode === 'login' ? 'Enter Vault' : 'Create Account';
+        document.getElementById('auth-error').style.display = 'none';
     };
 
-    window.processAuth = async () => {
-        const user = document.getElementById('user-name').value.toLowerCase().trim();
-        const pin = document.getElementById('user-pin').value;
-        if(user.length < 2 || pin.length < 4) return alert("Enter valid Name and PIN");
+    window.toggleHistory = (show) => {
+        showHistory = show;
+        document.getElementById('filter-active').style.color = show ? 'var(--text-sub)' : 'var(--blue)';
+        document.getElementById('filter-active').style.fontWeight = show ? 'normal' : '700';
+        document.getElementById('filter-history').style.color = show ? 'var(--blue)' : 'var(--text-sub)';
+        document.getElementById('filter-history').style.fontWeight = show ? '700' : 'normal';
+        renderTasks();
+    };
 
-        const isPar = pin.length >= 6;
-        const email = `${user}${isPar ? '_p' : '_s'}@hero.com`;
-        const pass = `secure_${pin}`;
+    const showError = (msg) => {
+        const el = document.getElementById('auth-error');
+        el.innerText = msg;
+        el.style.display = 'block';
+    };
+
+    // --- AUTHENTICATION ---
+    window.processAuth = async () => {
+        const user = document.getElementById('auth-user').value.toLowerCase().trim();
+        const pin = document.getElementById('auth-pin').value;
+        
+        if (user.length < 2 || pin.length < 4) return showError("Name and PIN are required.");
+
+        const isParent = pin.length >= 6;
+        const email = `${user}${isParent ? '_p' : '_s'}@heroapp.com`;
+        const pass = `hero_${pin}`; // Ensure passwords meet Firebase minimums
 
         try {
-            if(mode === 'login') {
+            if (authMode === 'login') {
                 await signInWithEmailAndPassword(auth, email, pass);
             } else {
                 const res = await createUserWithEmailAndPassword(auth, email, pass);
-                await setDoc(doc(db, "users", res.user.uid), { name: user, role: isPar ? "Parent" : "Student" });
-                alert("Account Created! You are logged in.");
+                await setDoc(doc(db, "users", res.user.uid), { name: user, role: isParent ? "Parent" : "Student" });
             }
         } catch (e) {
-            alert(mode === 'login' ? "Login failed. Check details." : "Could not sign up. Name might be taken.");
+            showError(authMode === 'login' ? "Incorrect PIN or Username." : "Username already exists.");
         }
     };
 
     onAuthStateChanged(auth, async (u) => {
-        if(u) {
+        if (u) {
             const snap = await getDoc(doc(db, "users", u.uid));
             if(snap.exists()) {
-                currentUser = snap.data();
-                initVault();
+                sessionUser = snap.data();
+                bootApp();
             }
         } else {
             document.getElementById('view-auth').classList.remove('hidden');
@@ -158,96 +204,156 @@
         }
     });
 
-    function initVault() {
+    // --- APP ENGINE ---
+    function bootApp() {
         document.getElementById('view-auth').classList.add('hidden');
         document.getElementById('view-main').classList.remove('hidden');
-        document.getElementById('welcome-msg').innerText = `${currentUser.name} (${currentUser.role})`;
+        
+        const isPar = sessionUser.role === "Parent";
+        document.getElementById('header-name').innerText = `${sessionUser.name} (${sessionUser.role})`;
+        document.getElementById('ui-student').classList.toggle('hidden', isPar);
+        document.getElementById('ui-parent').classList.toggle('hidden', !isPar);
 
-        const isP = currentUser.role === "Parent";
-        document.getElementById('stu-tools').classList.toggle('hidden', isP);
-        document.getElementById('par-tools').classList.toggle('hidden', !isP);
-
-        onSnapshot(doc(db, "vaults", currentUser.name), async (s) => {
-            if(!s.exists()) await setDoc(doc(db, "vaults", currentUser.name), { points: 0, tasks: [], goal: "New Goal", goalPoints: 100 });
-            currentVault = s.data();
-            renderUI(isP);
+        // Connect to the shared vault
+        onSnapshot(doc(db, "vaults", sessionUser.name), async (snap) => {
+            if (!snap.exists()) {
+                await setDoc(doc(db, "vaults", sessionUser.name), { points: 0, goalName: "Set a goal!", goalPoints: 100, activeTasks: [], historyTasks: [] });
+            } else {
+                vaultData = snap.data();
+                updateDashboard();
+                renderTasks();
+            }
         });
     }
 
-    function renderUI(isP) {
-        document.getElementById('stat-points').innerText = currentVault.points + " PTS";
-        document.getElementById('goal-text').innerText = "Target: " + currentVault.goal;
-        const perc = Math.min((currentVault.points / currentVault.goalPoints) * 100, 100);
-        document.getElementById('progress-bar').style.width = perc + "%";
-
-        const list = document.getElementById('mission-list');
-        list.innerHTML = "";
+    function updateDashboard() {
+        document.getElementById('goal-title').innerText = vaultData.goalName;
+        document.getElementById('stat-points').innerText = `${vaultData.points} / ${vaultData.goalPoints}`;
         
-        currentVault.tasks.forEach(t => {
+        let percentage = (vaultData.points / Math.max(vaultData.goalPoints, 1)) * 100;
+        if(percentage > 100) percentage = 100;
+        document.getElementById('progress-bar').style.width = percentage + "%";
+        
+        if (percentage >= 100 && vaultData.points > 0) {
+            document.getElementById('progress-bar').style.background = 'var(--green)';
+        } else {
+            document.getElementById('progress-bar').style.background = 'var(--blue)';
+        }
+    }
+
+    function renderTasks() {
+        const container = document.getElementById('mission-container');
+        container.innerHTML = "";
+        const isPar = sessionUser.role === "Parent";
+        
+        const listToRender = showHistory ? (vaultData.historyTasks || []) : (vaultData.activeTasks || []);
+        
+        if (listToRender.length === 0) {
+            container.innerHTML = `<p style="text-align:center; padding: 20px;">No missions here yet.</p>`;
+            return;
+        }
+
+        // Sort by date (newest/due soonest)
+        listToRender.sort((a, b) => new Date(a.due) - new Date(b.due)).forEach(task => {
             const card = document.createElement('div');
-            card.className = `task ${t.status}`;
-            const statusCol = t.status === 'pending' ? '#fbbf24' : (t.status === 'rejected' ? '#ef4444' : '#6366f1');
+            card.className = `task-card ${task.status}`;
             
+            let badgeColor = "var(--blue)";
+            if (task.status === "pending") badgeColor = "var(--orange)";
+            if (task.status === "rejected") badgeColor = "var(--red)";
+            if (task.status === "completed") badgeColor = "var(--green)";
+
             card.innerHTML = `
-                <span style="font-size:10px; padding:4px 8px; border-radius:6px; float:right; background:${statusCol}; color:white;">${t.status}</span>
-                <div style="font-size:11px; color:#94a3b8;">${t.subject} • Due: ${t.due}</div>
-                <div style="font-weight:bold; font-size:18px; margin:5px 0;">${t.name}</div>
-                ${t.img ? `<img src="${t.img}" style="width:100%; border-radius:12px; margin-top:10px; border:1px solid #475569;">` : ''}
-                ${t.status === 'assigned' && !isP ? `<input type="file" onchange="upload(${t.id}, this)" style="margin-top:10px; font-size:12px;">` : ''}
-                ${isP && t.status === 'pending' ? `
-                    <div style="display:flex; gap:10px; margin-top:15px;">
-                        <button class="btn-stu" style="background:#10b981; padding:10px;" onclick="judge(${t.id}, true)">Approve</button>
-                        <button class="btn-stu" style="background:#ef4444; padding:10px;" onclick="judge(${t.id}, false)">Reject</button>
+                <span class="badge" style="background: ${badgeColor}">${task.status}</span>
+                <p style="font-weight: 600;">${task.subject} • Due: ${task.due}</p>
+                <h3 style="margin: 5px 0 0 0; font-size: 20px;">${task.name}</h3>
+                
+                ${task.img ? `<img src="${task.img}" class="task-img">` : ''}
+                
+                ${!showHistory && task.status === 'assigned' && !isPar ? `
+                    <p style="margin-top: 15px; font-weight: 600;">Upload proof to finish:</p>
+                    <input type="file" style="padding: 10px; border: 1px dashed #ccc;" onchange="uploadImage(${task.id}, this)">
+                ` : ''}
+                
+                ${!showHistory && isPar && task.status === 'pending' ? `
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn-success" onclick="reviewTask(${task.id}, true)">Approve (+15)</button>
+                        <button class="btn-danger" onclick="reviewTask(${task.id}, false)">Reject</button>
                     </div>
                 ` : ''}
             `;
-            list.appendChild(card);
+            container.appendChild(card);
         });
     }
 
-    window.createTask = async () => {
-        const title = document.getElementById('task-title').value;
-        const sub = document.getElementById('task-class').value;
+    // --- DATA ACTIONS ---
+    window.addTask = async () => {
+        const name = document.getElementById('task-name').value;
+        const sub = document.getElementById('task-subject').value;
         const due = document.getElementById('task-date').value;
-        if(!title || !due) return alert("Fill mission details");
-        await updateDoc(doc(db, "vaults", currentUser.name), {
-            tasks: arrayUnion({ id: Date.now(), name: title, subject: sub, due, status: 'assigned', img: '' })
+        if(!name || !due) return alert("Please fill out the assignment name and date.");
+        
+        await updateDoc(doc(db, "vaults", sessionUser.name), {
+            activeTasks: arrayUnion({ id: Date.now(), name, subject: sub, due, status: 'assigned', img: '' })
         });
-        document.getElementById('task-title').value = "";
+        document.getElementById('task-name').value = "";
     };
 
-    window.upload = async (tid, el) => {
+    window.updateGoal = async () => {
+        const name = document.getElementById('goal-input-name').value;
+        const points = document.getElementById('goal-input-val').value;
+        if(!name || !points) return;
+        await updateDoc(doc(db, "vaults", sessionUser.name), { goalName: name, goalPoints: parseInt(points) });
+        document.getElementById('goal-input-name').value = "";
+        document.getElementById('goal-input-val').value = "";
+    };
+
+    window.uploadImage = async (taskId, inputElement) => {
+        const file = inputElement.files[0];
+        if(!file) return;
         const reader = new FileReader();
         reader.onload = async (e) => {
-            const updated = currentVault.tasks.map(t => t.id === tid ? {...t, status: 'pending', img: e.target.result} : t);
-            await updateDoc(doc(db, "vaults", currentUser.name), { tasks: updated });
+            const updatedTasks = vaultData.activeTasks.map(t => t.id === taskId ? {...t, status: 'pending', img: e.target.result} : t);
+            await updateDoc(doc(db, "vaults", sessionUser.name), { activeTasks: updatedTasks });
         };
-        reader.readAsDataURL(el.files[0]);
+        reader.readAsDataURL(file);
     };
 
-    window.judge = async (tid, ok) => {
-        let newList;
-        let points = 0;
-        if(ok) {
-            newList = currentVault.tasks.filter(t => t.id !== tid);
-            points = 15;
-            confetti({ particleCount: 150 });
+    window.reviewTask = async (taskId, approved) => {
+        const targetTask = vaultData.activeTasks.find(t => t.id === taskId);
+        let newActive = vaultData.activeTasks.filter(t => t.id !== taskId);
+        let pointsToAdd = 0;
+
+        if (approved) {
+            targetTask.status = "completed";
+            pointsToAdd = 15;
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            
+            // Move to history
+            await updateDoc(doc(db, "vaults", sessionUser.name), { 
+                activeTasks: newActive, 
+                historyTasks: arrayUnion(targetTask),
+                points: vaultData.points + pointsToAdd
+            });
         } else {
-            const msg = prompt("Fix needed?");
-            newList = currentVault.tasks.map(t => t.id === tid ? {...t, status: 'rejected', name: t.name + " (Fix: "+msg+")", img: ''} : t);
+            const reason = prompt("Why does this need to be fixed?");
+            if (reason === null) return; // Cancelled
+            targetTask.status = "rejected";
+            targetTask.name = `${targetTask.name} (Fix: ${reason})`;
+            targetTask.img = ""; // Force them to take a new photo
+            newActive.push(targetTask);
+            
+            await updateDoc(doc(db, "vaults", sessionUser.name), { activeTasks: newActive });
         }
-        await updateDoc(doc(db, "vaults", currentUser.name), { tasks: newList, points: currentVault.points + points });
     };
 
-    window.setGoal = async () => {
-        const g = document.getElementById('goal-name').value;
-        const v = document.getElementById('goal-val').value;
-        if(!g || !v) return;
-        await updateDoc(doc(db, "vaults", currentUser.name), { goal: g, goalPoints: parseInt(v) });
+    window.resetPoints = async () => {
+        if(confirm("Are you sure you want to reset their points to 0?")) {
+            await updateDoc(doc(db, "vaults", sessionUser.name), { points: 0 });
+        }
     };
 
-    window.logout = () => signOut(auth).then(() => location.reload());
-    window.resetPoints = async () => confirm("Reset?") && await updateDoc(doc(db, "vaults", currentUser.name), { points: 0 });
+    window.logOut = () => signOut(auth).then(() => location.reload());
 </script>
 </body>
 </html>
