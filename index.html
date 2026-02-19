@@ -1,181 +1,256 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homework Hero</title>
+    <title>Homework Hero: Master Build</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --student: #6366f1; --parent: #ec4899; --bg: #f8fafc; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: #1e293b; margin: 0; padding: 20px; text-align: center; }
-        .container { max-width: 400px; margin: 0 auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
+        :root { --hero-blue: #4285F4; --hero-pink: #EA4335; --dev-green: #00ff41; --bg: #f1f5f9; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: #1e293b; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 450px; background: white; padding: 25px; border-radius: 28px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; }
         .hidden { display: none !important; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 18px; text-align: center; outline: none; }
-        button { width: 95%; padding: 12px; margin: 10px 0; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        .btn-student { background: var(--student); }
-        .btn-parent { background: var(--parent); }
-        .secondary { background: #94a3b8; }
-        .task-item { background: #f1f5f9; padding: 12px; border-radius: 12px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; }
-        #status-log { margin-top: 20px; font-size: 11px; color: #94a3b8; }
+        
+        /* Inputs & Buttons */
+        input { width: 90%; padding: 14px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 14px; font-size: 16px; outline: none; transition: 0.2s; }
+        input:focus { border-color: var(--hero-blue); }
+        button { width: 95%; padding: 15px; margin: 8px 0; color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        button:active { transform: scale(0.97); }
+        
+        .btn-google { background: white; color: #444; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-student { background: var(--hero-blue); }
+        .btn-parent { background: var(--hero-pink); }
+        .btn-approve { background: #10b981; }
+        .btn-reject { background: #ef4444; }
+
+        /* Dev Console */
+        #dev-console { background: #121212; color: var(--dev-green); padding: 15px; border-radius: 18px; margin: 20px 0; font-family: monospace; text-align: left; border: 2px solid var(--dev-green); font-size: 13px; }
+        
+        /* Task Cards */
+        .task-card { background: #fff; padding: 18px; border-radius: 20px; margin: 15px 0; border: 1px solid #e2e8f0; text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .task-img { width: 100%; border-radius: 12px; margin: 12px 0; border: 1px solid #eee; object-fit: cover; max-height: 300px; }
+        .comment-text { font-size: 13px; color: #ef4444; font-weight: bold; background: #fef2f2; padding: 8px; border-radius: 8px; margin-top: 5px; }
+        
+        .alert-box { background: #fffbeb; border: 1px solid #fef3c7; padding: 15px; border-radius: 18px; margin-bottom: 20px; color: #92400e; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Homework Hero 🦸‍♂️</h1>
-        
-        <div id="login-view">
-            <h3>Login</h3>
-            <input type="number" id="login-code" placeholder="Enter Your Code">
-            <button class="btn-student" id="btn-login">Open Vault</button>
-            <button class="secondary" onclick="showView('signup-view')">Create New Account</button>
-        </div>
+<div class="container">
+    <h1 id="top-title" onclick="triggerDevMode()" style="cursor: pointer; user-select: none;">Homework Hero 🦸‍♂️</h1>
 
-        <div id="signup-view" class="hidden">
-            <h3>Sign Up</h3>
-            <p style="font-size: 13px;">Student: <b>4 Digits</b> | Parent: <b>5 Digits</b></p>
-            <input type="number" id="signup-code" placeholder="Pick Your Code">
-            <button class="btn-student" id="btn-signup-action">Register Code</button>
-            <button class="secondary" onclick="showView('login-view')">Back to Login</button>
-        </div>
-
-        <div id="main-view" class="hidden">
-            <div id="role-tag" style="display:inline-block; padding:5px 15px; border-radius:20px; color:white; font-size:12px; margin-bottom:10px;"></div>
-            
-            <div style="background: #f8fafc; padding: 15px; border-radius: 15px; border: 2px dashed #e2e8f0; margin-bottom: 15px;">
-                <span style="font-size: 32px; font-weight: bold;" id="points-display">0</span><br>
-                <small>TOTAL POINTS</small>
-            </div>
-
-            <div id="student-zone" class="hidden">
-                <input type="text" id="task-input" placeholder="New Mission...">
-                <button class="btn-student" id="btn-add-task">Add Task</button>
-            </div>
-
-            <div id="parent-zone" class="hidden">
-                <button class="btn-parent" id="btn-reset-points">Reset Student Points</button>
-            </div>
-
-            <div id="task-list" style="margin-top: 20px;"></div>
-            <button class="secondary" onclick="location.reload()">Logout</button>
-        </div>
-
-        <div id="status-log">Status: Ready</div>
+    <div id="view-auth">
+        <p>Login with Google to start your missions.</p>
+        <button class="btn-google" onclick="doGoogleLogin()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
+            Continue with Google
+        </button>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    <div id="view-setup" class="hidden">
+        <h3>Account Setup</h3>
+        <input type="text" id="setup-name" placeholder="Enter Your Name">
+        <input type="number" id="setup-code" placeholder="4-Digit Family Code">
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button class="btn-student" onclick="completeSetup('Student')">I'm a Student</button>
+            <button class="btn-parent" onclick="completeSetup('Parent')">I'm a Parent</button>
+        </div>
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyD0HePOf2DBOPzp5XPjkXjxYWuhs7-WQdQ",
-            authDomain: "homeworkhero-f2a15.firebaseapp.com",
-            projectId: "homeworkhero-f2a15",
-            storageBucket: "homeworkhero-f2a15.firebasestorage.app",
-            messagingSenderId: "885878491270",
-            appId: "1:885878491270:web:ea7a5e1c1ce178fd1ea907"
-        };
+    <div id="view-main" class="hidden">
+        <h3 id="user-welcome">Hi, Hero!</h3>
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const log = (m) => document.getElementById('status-log').innerText = "Status: " + m;
+        <div id="dev-console" class="hidden">
+            <p>> MASTER_OVERRIDE_ENABLED</p>
+            <button style="background:#333; color:var(--dev-green); width:45%; font-size:11px;" onclick="modPoints(50)">+50 PTS</button>
+            <button style="background:#333; color:var(--dev-green); width:45%; font-size:11px;" onclick="modPoints(-50)">-50 PTS</button>
+            <button style="background:#333; color:#ef4444; width:95%; font-size:11px;" onclick="wipeData()">WIPE ALL DATA</button>
+        </div>
 
-        let activeCode = "";
-        let isParent = false;
-        let vaultID = "";
+        <div id="alert-student" class="hidden alert-box">
+            <p>🔔 Your Parent wants to join this vault!</p>
+            <button class="btn-approve" onclick="verifyParent()">Allow Parent Access</button>
+        </div>
+        <div id="alert-parent" class="hidden alert-box">
+            <p>⏳ Waiting for Student to approve you...</p>
+        </div>
 
-        window.showView = (id) => {
-            ['login-view', 'signup-view', 'main-view'].forEach(v => document.getElementById(v).classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-        };
+        <div id="dashboard-ui">
+            <div style="background: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 2px solid #e2e8f0;">
+                <span style="font-size: 36px; font-weight: 900; color: #1e293b;" id="stat-points">0</span><br>
+                <small style="color: #64748b; letter-spacing: 1px;">TOTAL HERO POINTS</small>
+            </div>
 
-        // SIGN UP
-        document.getElementById('btn-signup-action').onclick = async () => {
-            const code = document.getElementById('signup-code').value.trim();
-            if (code.length < 4 || code.length > 5) return alert("Codes must be 4 or 5 digits!");
+            <div id="ui-student" class="hidden">
+                <input type="text" id="in-task-name" placeholder="Homework Subject">
+                <input type="file" id="in-task-file" accept="image/*">
+                <button class="btn-student" onclick="sendTask()">Submit Proof</button>
+            </div>
 
-            const vID = (code.length === 5) ? code.substring(0, 4) : code;
-            const docRef = doc(db, "vaults", vID);
-            const snap = await getDoc(docRef);
+            <div id="ui-parent" class="hidden">
+                <button class="btn-parent" onclick="resetPoints()">Reset All Points</button>
+            </div>
 
+            <div id="render-list"></div>
+        </div>
+        
+        <button style="background:#94a3b8; margin-top:20px; width:50%; font-size:12px;" onclick="doLogout()">Logout</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyD0HePOf2DBOPzp5XPjkXjxYWuhs7-WQdQ",
+        authDomain: "homeworkhero-f2a15.firebaseapp.com",
+        projectId: "homeworkhero-f2a15",
+        storageBucket: "homeworkhero-f2a15.firebasestorage.app",
+        messagingSenderId: "885878491270",
+        appId: "1:885878491270:web:ea7a5e1c1ce178fd1ea907"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    let userProfile = null;
+    let devTaps = 0;
+
+    // GOOGLE LOGIC
+    window.doGoogleLogin = async () => { await signInWithPopup(auth, provider); };
+    window.doLogout = () => signOut(auth);
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const snap = await getDoc(doc(db, "users", user.uid));
             if (!snap.exists()) {
-                await setDoc(docRef, { points: 0, tasks: [] });
-                log("New Vault Created!");
+                showView('view-setup');
             } else {
-                log("Linked to Existing Vault");
+                userProfile = snap.data();
+                initApp();
             }
-            alert("Code Registered! Now Login.");
-            showView('login-view');
-        };
-
-        // LOGIN
-        document.getElementById('btn-login').onclick = async () => {
-            const code = document.getElementById('login-code').value.trim();
-            if (!code) return;
-
-            activeCode = code;
-            isParent = (code.length === 5);
-            vaultID = isParent ? code.substring(0, 4) : code;
-
-            const docRef = doc(db, "vaults", vaultID);
-            const snap = await getDoc(docRef);
-
-            if (snap.exists()) {
-                showView('main-view');
-                const tag = document.getElementById('role-tag');
-                tag.innerText = isParent ? "PARENT" : "STUDENT";
-                tag.style.background = isParent ? "#ec4899" : "#6366f1";
-                
-                document.getElementById('student-zone').classList.toggle('hidden', isParent);
-                document.getElementById('parent-zone').classList.toggle('hidden', !isParent);
-
-                onSnapshot(docRef, (doc) => {
-                    const data = doc.data();
-                    document.getElementById('points-display').innerText = data.points;
-                    renderTasks(data.tasks);
-                });
-            } else {
-                alert("Code not found. Please Sign Up first!");
-            }
-        };
-
-        function renderTasks(tasks) {
-            const list = document.getElementById('task-list');
-            list.innerHTML = tasks.length ? "" : "<p style='color:#94a3b8'>No missions.</p>";
-            tasks.forEach(t => {
-                const div = document.createElement('div');
-                div.className = "task-item";
-                let btn = !isParent ? `<button onclick="doneTask(${t.id})" style="width:auto; background:#10b981; margin:0; padding:5px 10px;">DONE</button>` : `<span>📋</span>`;
-                div.innerHTML = `<span>${t.text}</span> ${btn}`;
-                list.appendChild(div);
-            });
+        } else {
+            showView('view-auth');
         }
+    });
 
-        window.doneTask = async (tid) => {
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            const ref = doc(db, "vaults", vaultID);
-            const snap = await getDoc(ref);
-            const data = snap.data();
-            await updateDoc(ref, { 
-                tasks: data.tasks.filter(x => x.id !== tid), 
-                points: data.points + 10 
-            });
-        };
+    window.completeSetup = async (role) => {
+        const name = document.getElementById('setup-name').value;
+        const code = document.getElementById('setup-code').value;
+        if (!name || code.length !== 4) return alert("Fill all fields! (Code = 4 digits)");
+        await setDoc(doc(db, "users", auth.currentUser.uid), { name, familyCode: code, role });
+        location.reload();
+    };
 
-        document.getElementById('btn-add-task').onclick = async () => {
-            const val = document.getElementById('task-input').value;
-            if(!val) return;
-            await updateDoc(doc(db, "vaults", vaultID), { 
-                tasks: arrayUnion({ text: val, id: Date.now() }) 
-            });
-            document.getElementById('task-input').value = "";
-        };
+    function showView(id) {
+        ['view-auth', 'view-setup', 'view-main'].forEach(v => document.getElementById(v).classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
 
-        document.getElementById('btn-reset-points').onclick = async () => {
-            if(confirm("Reset points?")) {
-                await updateDoc(doc(db, "vaults", vaultID), { points: 0 });
+    function initApp() {
+        showView('view-main');
+        document.getElementById('user-welcome').innerText = userProfile.name + " (" + userProfile.role + ")";
+        const isParent = userProfile.role === "Parent";
+        document.getElementById('ui-student').classList.toggle('hidden', isParent);
+        document.getElementById('ui-parent').classList.toggle('hidden', !isParent);
+
+        onSnapshot(doc(db, "vaults", userProfile.familyCode), async (s) => {
+            if(!s.exists()) await setDoc(doc(db, "vaults", userProfile.familyCode), { points: 0, tasks: [], approved: false });
+            const data = s.data();
+
+            // Handshake logic
+            if(isParent) {
+                const waiting = !data.approved;
+                document.getElementById('alert-parent').classList.toggle('hidden', !waiting);
+                document.getElementById('dashboard-ui').classList.toggle('hidden', waiting);
+                if(waiting) await updateDoc(doc(db, "vaults", userProfile.familyCode), { ping: true });
+            } else {
+                document.getElementById('alert-student').classList.toggle('hidden', !data.ping || data.approved);
             }
+
+            document.getElementById('stat-points').innerText = data.points;
+            renderTasks(data.tasks, isParent);
+        });
+    }
+
+    // TASKS
+    window.sendTask = async () => {
+        const name = document.getElementById('in-task-name').value;
+        const file = document.getElementById('in-task-file').files[0];
+        if(!name) return;
+
+        const upload = (img) => {
+            updateDoc(doc(db, "vaults", userProfile.familyCode), {
+                tasks: arrayUnion({ id: Date.now(), name, img, status: "pending", msg: "" })
+            });
+            document.getElementById('in-task-name').value = "";
         };
-    </script>
+
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => upload(e.target.result);
+            reader.readAsDataURL(file);
+        } else { upload(""); }
+    };
+
+    function renderTasks(tasks, isParent) {
+        const list = document.getElementById('render-list');
+        list.innerHTML = "";
+        tasks.forEach(t => {
+            const div = document.createElement('div');
+            div.className = "task-card";
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong>${t.name}</strong>
+                    <span style="font-size:10px; padding:3px 8px; border-radius:10px; background:${t.status==='pending'?'#fef3c7':'#fee2e2'}; color:#92400e;">${t.status.toUpperCase()}</span>
+                </div>
+                ${t.img ? `<img src="${t.img}" class="task-img">` : ''}
+                ${t.msg ? `<div class="comment-text">NOTE: ${t.msg}</div>` : ''}
+                ${isParent && t.status === 'pending' ? `
+                    <button class="btn-approve" onclick="mgrTask(${t.id}, 'app')">Approve +10</button>
+                    <button class="btn-reject" onclick="mgrTask(${t.id}, 'rej')">Reject / Fix</button>
+                ` : ''}
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    window.mgrTask = async (tid, action) => {
+        const ref = doc(db, "vaults", userProfile.familyCode);
+        const d = (await getDoc(ref)).data();
+        if(action === 'app') {
+            confetti({ particleCount: 100 });
+            await updateDoc(ref, { tasks: d.tasks.filter(x => x.id !== tid), points: d.points + 10 });
+        } else {
+            const reason = prompt("What needs to be fixed?");
+            const newTasks = d.tasks.map(x => x.id === tid ? {...x, status: "rejected", msg: reason} : x);
+            await updateDoc(ref, { tasks: newTasks });
+        }
+    };
+
+    // SECRETS & HELPERS
+    window.verifyParent = async () => { await updateDoc(doc(db, "vaults", userProfile.familyCode), { approved: true }); confetti(); };
+    window.resetPoints = async () => { if(confirm("Zero points?")) await updateDoc(doc(db, "vaults", userProfile.familyCode), { points: 0 }); };
+    
+    window.triggerDevMode = () => {
+        devTaps++;
+        if(devTaps >= 5) { document.getElementById('dev-console').classList.toggle('hidden'); confetti({colors:['#00ff41']}); devTaps = 0; }
+        setTimeout(() => devTaps = 0, 2000);
+    };
+
+    window.modPoints = async (n) => {
+        const ref = doc(db, "vaults", userProfile.familyCode);
+        const d = (await getDoc(ref)).data();
+        await updateDoc(ref, { points: (d.points || 0) + n });
+    };
+
+    window.wipeData = async () => {
+        if(confirm("DELETE EVERYTHING?")) await updateDoc(doc(db, "vaults", userProfile.familyCode), { tasks: [], points: 0 });
+    };
+</script>
 </body>
 </html>
