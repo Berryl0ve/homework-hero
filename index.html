@@ -3,50 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homework Hero: Pro</title>
+    <title>Homework Hero: Ultimate</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --primary: #6366f1; --parent: #f43f5e; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
+        :root { --stu: #6366f1; --par: #f43f5e; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
         .container { max-width: 480px; margin: 0 auto; }
         .hidden { display: none !important; }
         .card { background: var(--card); padding: 20px; border-radius: 24px; border: 1px solid #334155; margin-bottom: 15px; }
-        input, select { width: 100%; padding: 14px; margin: 8px 0; background: #0f172a; border: 1px solid #475569; border-radius: 12px; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        .btn-stu { background: var(--primary); color: white; }
-        .btn-par { background: var(--parent); color: white; }
-        .task { background: #334155; padding: 15px; border-radius: 18px; margin: 12px 0; border-left: 6px solid var(--primary); }
-        .task.pending { border-left-color: #eab308; }
+        input, select { width: 100%; padding: 14px; margin: 8px 0; background: #0f172a; border: 1px solid #475569; border-radius: 12px; color: white; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px; font-size: 16px; }
+        .btn-stu { background: var(--stu); color: white; }
+        .btn-par { background: var(--par); color: white; }
+        .task { background: #334155; padding: 15px; border-radius: 18px; margin: 12px 0; border-left: 6px solid var(--stu); }
+        .task.pending { border-left-color: #fbbf24; }
         .task.rejected { border-left-color: #ef4444; }
-        .progress-bg { background: #0f172a; height: 12px; border-radius: 6px; overflow: hidden; margin: 10px 0; border: 1px solid #334155; }
+        .progress-bg { background: #0f172a; height: 14px; border-radius: 7px; overflow: hidden; margin: 12px 0; }
         .progress-fill { background: linear-gradient(90deg, #6366f1, #a855f7); height: 100%; transition: 1s; width: 0%; }
-        .badge { font-size: 10px; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; float: right; color: white; }
+        .status-tag { font-size: 10px; padding: 4px 8px; border-radius: 6px; float: right; color: white; text-transform: uppercase; font-weight: 900; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1 style="text-align:center; letter-spacing: -1px;">HERO <span style="color:var(--primary)">PRO</span></h1>
+    <h1 style="text-align:center;">HERO <span style="color:var(--stu)">PRO</span></h1>
 
     <div id="view-auth" class="card">
-        <h2 style="margin-top:0;">Vault Login</h2>
-        <input type="text" id="user-name" placeholder="Unique Username">
+        <h2 style="margin-top:0;">Access Vault</h2>
+        <input type="text" id="user-name" placeholder="Username (Case Sensitive)">
         <input type="password" id="user-pin" placeholder="PIN (Student: 4, Parent: 6)">
-        <button class="btn-stu" onclick="handleAuth()">Access Vault</button>
-        <p id="auth-status" style="font-size: 12px; color: #ef4444; text-align: center;"></p>
+        <button class="btn-stu" id="login-btn" onclick="handleAuth()">Enter Vault</button>
+        <p style="font-size: 11px; color: #94a3b8; margin-top: 15px; text-align: center;">
+            Parents must use a 6-digit PIN to see the Admin tools.
+        </p>
     </div>
 
     <div id="view-main" class="hidden">
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 id="welcome-msg" style="margin:0;">Loading...</h3>
+                <h3 id="welcome-msg" style="margin:0;">Hero</h3>
                 <button onclick="logout()" style="width:auto; padding:8px 12px; margin:0; background:#334155; font-size:11px;">Logout</button>
             </div>
             
-            <div id="goal-ui" style="margin-top:15px;">
-                <div style="display:flex; justify-content:space-between; font-size:14px;">
-                    <span id="goal-text">No Goal</span>
-                    <span id="stat-points" style="color:#eab308; font-weight:bold;">0 PTS</span>
+            <div style="margin-top:15px;">
+                <div style="display:flex; justify-content:space-between; font-size:14px; font-weight: bold;">
+                    <span id="goal-text">No Goal Set</span>
+                    <span id="stat-points" style="color:#fbbf24;">0 PTS</span>
                 </div>
                 <div class="progress-bg"><div id="progress-bar" class="progress-fill"></div></div>
             </div>
@@ -54,34 +56,32 @@
 
         <div id="stu-tools" class="hidden">
             <div class="card">
-                <h4 style="margin:0 0 10px 0;">Assign Mission</h4>
-                <input type="text" id="task-title" placeholder="Homework Description">
+                <h4 style="margin:0 0 10px 0;">+ New Mission</h4>
+                <input type="text" id="task-title" placeholder="Assignment (e.g. Page 42)">
                 <div style="display:flex; gap:10px;">
                     <select id="task-class">
-                        <option>Math</option><option>English</option><option>Science</option><option>History</option><option>Art</option>
+                        <option>Math</option><option>English</option><option>Science</option><option>History</option>
                     </select>
                     <input type="date" id="task-date">
                 </div>
-                <button class="btn-stu" onclick="createTask()">Create Mission</button>
+                <button class="btn-stu" onclick="createTask()">Assign to Me</button>
             </div>
-            
             <div class="card">
-                <h4 style="margin:0 0 10px 0;">Set Point Goal</h4>
-                <input type="text" id="goal-name" placeholder="E.g. New Game">
-                <input type="number" id="goal-val" placeholder="Points Required">
+                <h4 style="margin:0 0 10px 0;">+ Set Goal</h4>
+                <input type="text" id="goal-name" placeholder="What are you earning?">
+                <input type="number" id="goal-val" placeholder="Points needed">
                 <button class="btn-stu" style="background:#475569" onclick="setGoal()">Update Goal</button>
             </div>
         </div>
 
         <div id="par-tools" class="hidden">
-            <div class="card" style="border-color: var(--parent);">
-                <h4 style="margin:0 0 10px 0; color:var(--parent);">Parent Toolbox</h4>
-                <button class="btn-par" onclick="resetPoints()">Clear All Points</button>
-                <p style="font-size:11px; color:#94a3b8; margin-top:10px;">To approve missions, scroll down to the mission list.</p>
+            <div class="card" style="border-color: var(--par);">
+                <h4 style="margin:0 0 10px 0; color:var(--par);">Parent Master Control</h4>
+                <button class="btn-par" onclick="resetPoints()">Clear Student Points</button>
             </div>
         </div>
 
-        <h3 style="margin-left:10px;">Missions</h3>
+        <h3 style="margin-left:10px;">Mission List</h3>
         <div id="mission-list"></div>
     </div>
 </div>
@@ -89,7 +89,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyD0HePOf2DBOPzp5XPjkXjxYWuhs7-WQdQ",
@@ -104,17 +104,18 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    let vData = null;
-    let uData = null;
+    let currentVault = null;
+    let currentUser = null;
 
+    // --- SECURE AUTH ---
     window.handleAuth = async () => {
         const user = document.getElementById('user-name').value.toLowerCase().trim();
         const pin = document.getElementById('user-pin').value;
-        if(user.length < 3 || pin.length < 4) return alert("Invalid Login");
+        if(user.length < 2 || pin.length < 4) return alert("Enter a valid name and PIN");
 
         const isPar = pin.length >= 6;
         const email = `${user}${isPar ? '_p' : '_s'}@hero.com`;
-        const pass = `pass_${pin}`;
+        const pass = `secure_${pin}`;
 
         try {
             await signInWithEmailAndPassword(auth, email, pass);
@@ -122,59 +123,65 @@
             try {
                 const res = await createUserWithEmailAndPassword(auth, email, pass);
                 await setDoc(doc(db, "users", res.user.uid), { name: user, role: isPar ? "Parent" : "Student" });
-            } catch (err) { alert("Username taken or PIN wrong!"); }
+            } catch (err) { alert("PIN incorrect or Username taken!"); }
         }
     };
 
-    auth.onAuthStateChanged(async (u) => {
+    onAuthStateChanged(auth, async (u) => {
         if(u) {
             const snap = await getDoc(doc(db, "users", u.uid));
-            uData = snap.data();
-            initApp();
+            currentUser = snap.data();
+            loadVault();
         } else {
             document.getElementById('view-auth').classList.remove('hidden');
             document.getElementById('view-main').classList.add('hidden');
         }
     });
 
-    function initApp() {
+    function loadVault() {
         document.getElementById('view-auth').classList.add('hidden');
         document.getElementById('view-main').classList.remove('hidden');
-        document.getElementById('welcome-msg').innerText = `${uData.name} (${uData.role})`;
-        
-        const isP = uData.role === "Parent";
+        document.getElementById('welcome-msg').innerText = `${currentUser.name} (${currentUser.role})`;
+
+        const isP = currentUser.role === "Parent";
         document.getElementById('stu-tools').classList.toggle('hidden', isP);
         document.getElementById('par-tools').classList.toggle('hidden', !isP);
 
-        onSnapshot(doc(db, "vaults", uData.name), async (s) => {
-            if(!s.exists()) await setDoc(doc(db, "vaults", uData.name), { points: 0, tasks: [], goal: "New Goal", goalPoints: 100 });
-            vData = s.data();
+        // Listen to the shared vault named after the Student
+        onSnapshot(doc(db, "vaults", currentUser.name), async (s) => {
+            if(!s.exists()) await setDoc(doc(db, "vaults", currentUser.name), { points: 0, tasks: [], goal: "New Goal", goalPoints: 100 });
+            currentVault = s.data();
             renderUI(isP);
         });
     }
 
     function renderUI(isP) {
-        document.getElementById('stat-points').innerText = vData.points + " PTS";
-        document.getElementById('goal-text').innerText = "Target: " + vData.goal;
-        const perc = Math.min((vData.points / vData.goalPoints) * 100, 100);
+        document.getElementById('stat-points').innerText = currentVault.points + " PTS";
+        document.getElementById('goal-text').innerText = "Target: " + currentVault.goal;
+        const perc = Math.min((currentVault.points / currentVault.goalPoints) * 100, 100);
         document.getElementById('progress-bar').style.width = perc + "%";
 
         const list = document.getElementById('mission-list');
         list.innerHTML = "";
-        vData.tasks.forEach(t => {
+        
+        currentVault.tasks.forEach(t => {
             const card = document.createElement('div');
             card.className = `task ${t.status}`;
-            const bCol = t.status === 'pending' ? '#eab308' : (t.status === 'rejected' ? '#ef4444' : '#6366f1');
+            const statusCol = t.status === 'pending' ? '#fbbf24' : (t.status === 'rejected' ? '#ef4444' : '#6366f1');
+            
             card.innerHTML = `
-                <span class="badge" style="background:${bCol}">${t.status}</span>
-                <div style="font-size:11px; color:#94a3b8;">${t.subject} • Due ${t.due}</div>
+                <span class="status-tag" style="background:${statusCol}">${t.status}</span>
+                <div style="font-size:11px; color:#94a3b8;">${t.subject} • Due: ${t.due}</div>
                 <div style="font-weight:bold; font-size:18px; margin:5px 0;">${t.name}</div>
-                ${t.img ? `<img src="${t.img}" style="width:100%; border-radius:12px; margin-top:10px;">` : ''}
-                ${t.status === 'assigned' && !isP ? `<input type="file" onchange="upload(${t.id}, this)" style="margin-top:10px; font-size:12px;">` : ''}
+                ${t.img ? `<img src="${t.img}" style="width:100%; border-radius:12px; margin-top:10px; border:1px solid #475569;">` : ''}
+                ${t.status === 'assigned' && !isP ? `
+                    <p style="font-size:12px; margin-bottom:5px; color:#94a3b8;">Finish mission by uploading photo:</p>
+                    <input type="file" onchange="uploadPhoto(${t.id}, this)">
+                ` : ''}
                 ${isP && t.status === 'pending' ? `
                     <div style="display:flex; gap:10px; margin-top:15px;">
-                        <button class="btn-stu" style="background:#10b981; padding:10px;" onclick="judge(${t.id}, true)">Approve</button>
-                        <button class="btn-stu" style="background:#ef4444; padding:10px;" onclick="judge(${t.id}, false)">Reject</button>
+                        <button class="btn-stu" style="background:#10b981; padding:10px;" onclick="decide(${t.id}, true)">Approve (+15)</button>
+                        <button class="btn-stu" style="background:#ef4444; padding:10px;" onclick="decide(${t.id}, false)">Reject</button>
                     </div>
                 ` : ''}
             `;
@@ -183,48 +190,49 @@
     }
 
     window.createTask = async () => {
-        const name = document.getElementById('task-title').value;
-        const subject = document.getElementById('task-class').value;
+        const title = document.getElementById('task-title').value;
+        const sub = document.getElementById('task-class').value;
         const due = document.getElementById('task-date').value;
-        if(!name || !due) return alert("Fill all fields!");
-        await updateDoc(doc(db, "vaults", uData.name), {
-            tasks: arrayUnion({ id: Date.now(), name, subject, due, status: 'assigned', img: '' })
+        if(!title || !due) return alert("Fill out all mission info!");
+        
+        await updateDoc(doc(db, "vaults", currentUser.name), {
+            tasks: arrayUnion({ id: Date.now(), name: title, subject: sub, due, status: 'assigned', img: '' })
         });
         document.getElementById('task-title').value = "";
     };
 
-    window.upload = async (tid, el) => {
+    window.uploadPhoto = async (tid, el) => {
         const reader = new FileReader();
         reader.onload = async (e) => {
-            const updated = vData.tasks.map(t => t.id === tid ? {...t, status: 'pending', img: e.target.result} : t);
-            await updateDoc(doc(db, "vaults", uData.name), { tasks: updated });
+            const updated = currentVault.tasks.map(t => t.id === tid ? {...t, status: 'pending', img: e.target.result} : t);
+            await updateDoc(doc(db, "vaults", currentUser.name), { tasks: updated });
         };
         reader.readAsDataURL(el.files[0]);
     };
 
-    window.judge = async (tid, ok) => {
+    window.decide = async (tid, ok) => {
         let newList;
-        let pAdd = 0;
+        let points = 0;
         if(ok) {
-            newList = vData.tasks.filter(t => t.id !== tid);
-            pAdd = 15;
-            confetti({ particleCount: 150 });
+            newList = currentVault.tasks.filter(t => t.id !== tid);
+            points = 15;
+            confetti({ particleCount: 150, spread: 60 });
         } else {
-            const why = prompt("Why?");
-            newList = vData.tasks.map(t => t.id === tid ? {...t, status: 'rejected', name: t.name + " (Fix: "+why+")", img: ''} : t);
+            const msg = prompt("Reason for rejection?");
+            newList = currentVault.tasks.map(t => t.id === tid ? {...t, status: 'rejected', name: t.name + " (Fix: "+msg+")", img: ''} : t);
         }
-        await updateDoc(doc(db, "vaults", uData.name), { tasks: newList, points: vData.points + pAdd });
+        await updateDoc(doc(db, "vaults", currentUser.name), { tasks: newList, points: currentVault.points + points });
     };
 
     window.setGoal = async () => {
-        const goal = document.getElementById('goal-name').value;
-        const val = document.getElementById('goal-val').value;
-        if(!goal || !val) return;
-        await updateDoc(doc(db, "vaults", uData.name), { goal, goalPoints: parseInt(val) });
+        const g = document.getElementById('goal-name').value;
+        const v = document.getElementById('goal-val').value;
+        if(!g || !v) return;
+        await updateDoc(doc(db, "vaults", currentUser.name), { goal: g, goalPoints: parseInt(v) });
     };
 
     window.logout = () => signOut(auth).then(() => location.reload());
-    window.resetPoints = async () => confirm("Reset?") && await updateDoc(doc(db, "vaults", uData.name), { points: 0 });
+    window.resetPoints = async () => confirm("Wipe points?") && await updateDoc(doc(db, "vaults", currentUser.name), { points: 0 });
 </script>
 </body>
 </html>
