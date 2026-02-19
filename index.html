@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homework Hero: Dev Edition</title>
+    <title>Homework Hero: Access Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --student: #6366f1; --parent: #ec4899; --dev: #0f172a; --bg: #f8fafc; }
+        :root { --student: #6366f1; --parent: #ec4899; --dev: #1e293b; --bg: #f8fafc; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); color: #1e293b; margin: 0; padding: 20px; text-align: center; }
-        .container { max-width: 400px; margin: 0 auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 15px rgba(0,0,0,0.1); position: relative; }
+        .container { max-width: 400px; margin: 0 auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
         .hidden { display: none !important; }
         input { width: 90%; padding: 12px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
         button { width: 95%; padding: 12px; margin: 10px 0; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
@@ -17,7 +17,7 @@
         .secondary { background: #94a3b8; }
         .role-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; color: white; font-size: 12px; margin-bottom: 10px; cursor: pointer; user-select: none; }
         .task-item { background: #f1f5f9; padding: 12px; border-radius: 12px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; }
-        #dev-menu { background: var(--dev); color: #22c55e; padding: 15px; border-radius: 15px; margin-top: 20px; text-align: left; font-family: monospace; }
+        #dev-menu { background: var(--dev); color: #22c55e; padding: 15px; border-radius: 15px; margin-top: 20px; text-align: left; font-family: monospace; border: 2px solid #22c55e; }
         #debug-log { margin-top: 20px; padding: 10px; font-size: 11px; color: #64748b; background: #f1f5f9; border-radius: 8px; }
     </style>
 </head>
@@ -30,50 +30,49 @@
             <input type="text" id="login-user" placeholder="Username">
             <input type="password" id="login-password" placeholder="Password">
             <button class="btn-student" id="btn-login">Login</button>
-            <button class="secondary" onclick="showView('signup-view')">Create New Account</button>
+            <button class="secondary" onclick="showView('signup-view')">New Account</button>
         </div>
 
         <div id="signup-view" class="hidden">
-            <p>Code <b>4</b> (Student) or <b>5</b> (Parent)</p>
+            <p>Use Code <b>4</b> or <b>5</b></p>
             <input type="text" id="signup-user" placeholder="Username">
             <input type="password" id="signup-password" placeholder="Password">
-            <input type="number" id="access-code" placeholder="Enter 4 or 5">
-            <button class="btn-student" id="btn-signup">Join</button>
+            <input type="number" id="access-code" placeholder="Enter Access Code">
+            <button class="btn-student" id="btn-signup">Register</button>
             <button class="secondary" onclick="showView('login-view')">Back</button>
         </div>
 
         <div id="main-view" class="hidden">
             <div id="role-tag" class="role-badge" onclick="devClick()"></div>
-            <div style="background: #f8fafc; padding: 15px; border-radius: 15px; border: 2px dashed #e2e8f0;">
+            <div style="background: #f8fafc; padding: 15px; border-radius: 15px; border: 2px dashed #e2e8f0; margin-bottom: 15px;">
                 <span style="font-size: 28px; font-weight: bold;" id="user-points">0</span><br>
-                <small>HERO POINTS</small>
+                <small>POINTS GATHERED</small>
             </div>
 
             <div id="student-controls" class="hidden">
-                <input type="text" id="task-input" placeholder="Enter mission...">
-                <button class="btn-student" id="btn-add-task">Add Task</button>
+                <input type="text" id="task-input" placeholder="Mission description...">
+                <button class="btn-student" id="btn-add-task">Add Mission</button>
             </div>
 
             <div id="parent-controls" class="hidden">
-                <div style="margin: 15px 0; padding: 10px; background: #fff1f2; border-radius: 10px;">
-                    <p style="font-size: 14px; margin: 0 0 10px 0;">Parent Dashboard</p>
-                    <button class="btn-parent" id="btn-reset-points" style="padding: 8px;">Reset Student Points</button>
+                <div style="margin: 10px 0; padding: 10px; background: #fff1f2; border-radius: 10px;">
+                    <button class="btn-parent" id="btn-reset-points">Reset Points</button>
                 </div>
             </div>
 
-            <div id="task-list" style="margin-top: 20px;"></div>
+            <div id="task-list"></div>
 
             <div id="dev-menu" class="hidden">
-                <p>> DEVELOPER MODE ACTIVE</p>
-                <button onclick="addPoints(1000)" style="background:#22c55e; color:black; font-size:12px;">+1000 Points (Cheat)</button>
-                <button onclick="addPoints(-100)" style="background:#ef4444; color:white; font-size:12px;">-100 Points</button>
-                <button onclick="location.reload()" style="background:#3b82f6; font-size:12px;">Force Reboot</button>
+                <p style="margin:0 0 10px 0; color:#22c55e;">[DEV CONSOLE ACTIVE]</p>
+                <button onclick="addPoints(500)" style="background:#22c55e; color:black; font-size:11px; width:45%;">+500 PTS</button>
+                <button onclick="addPoints(-500)" style="background:#ef4444; color:white; font-size:11px; width:45%;">-500 PTS</button>
+                <button onclick="clearTasks()" style="background:#3b82f6; font-size:11px; margin-top:5px;">Wipe All Tasks</button>
             </div>
 
-            <button class="secondary" id="btn-logout" style="margin-top:30px;">Sign Out</button>
+            <button class="secondary" id="btn-logout" style="margin-top:25px;">Sign Out</button>
         </div>
 
-        <div id="debug-log">System: Ready</div>
+        <div id="debug-log">System Status: Waiting...</div>
     </div>
 
     <script type="module">
@@ -103,13 +102,21 @@
 
         // DEV MODE LOGIC
         let clicks = 0;
-        window.devClick = () => {
+        window.devClick = async () => {
+            const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+            const userData = userDoc.data();
+            
+            // Only Parents can open Dev Mode
+            if(userData.role !== "Parent") return;
+
             clicks++;
             if(clicks === 3) {
-                let pass = prompt("Enter Developer Password:");
-                if(pass === "hero123") {
+                let pass = prompt("Enter your Access Code to unlock Dev Mode:");
+                if(pass === userData.accessCode) {
                     document.getElementById('dev-menu').classList.toggle('hidden');
-                    log("Developer Mode Unlocked");
+                    log("Console Unlocked");
+                } else {
+                    alert("Wrong Access Code!");
                 }
                 clicks = 0;
             }
@@ -121,27 +128,42 @@
             await updateDoc(ref, { points: (snap.data().points || 0) + amt });
         };
 
+        window.clearTasks = async () => {
+            if(confirm("Delete all missions?")) {
+                await updateDoc(doc(db, "users", auth.currentUser.uid), { tasks: [] });
+            }
+        };
+
         document.getElementById('btn-signup').onclick = async () => {
             const user = document.getElementById('signup-user').value;
             const pass = document.getElementById('signup-password').value;
             const code = document.getElementById('access-code').value;
             let role = (code === "4") ? "Student" : (code === "5") ? "Parent" : "";
-            if(!role || !user || !pass) return alert("Check all fields!");
+            
+            if(!role) return alert("Access Code must be 4 or 5!");
+            if(!user || pass.length < 6) return alert("Username required & Password must be 6+ chars");
 
             try {
                 const cred = await createUserWithEmailAndPassword(auth, ghostEmail(user), pass);
-                await setDoc(doc(db, "users", cred.user.uid), { username: user, role: role, points: 0, tasks: [] });
+                await setDoc(doc(db, "users", cred.user.uid), { 
+                    username: user, 
+                    role: role, 
+                    accessCode: code, // Saved for dev password check
+                    points: 0, 
+                    tasks: [] 
+                });
             } catch (e) { log(e.message); }
         };
 
         document.getElementById('btn-login').onclick = async () => {
             try { await signInWithEmailAndPassword(auth, ghostEmail(document.getElementById('login-user').value), document.getElementById('login-password').value); } 
-            catch (e) { log("Login Failed"); }
+            catch (e) { log("Check username/password"); }
         };
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
+                if(!userDoc.exists()) return;
                 const userData = userDoc.data();
                 showView('main-view');
                 document.getElementById('role-tag').innerText = userData.role;
@@ -158,18 +180,18 @@
 
         function renderTasks(tasks, role) {
             const list = document.getElementById('task-list');
-            list.innerHTML = tasks.length ? "" : "<p style='color:#94a3b8'>Mission clear!</p>";
+            list.innerHTML = tasks.length ? "" : "<p style='color:#94a3b8; font-size:14px;'>All missions accomplished!</p>";
             tasks.forEach(t => {
                 const div = document.createElement('div');
                 div.className = "task-item";
-                let action = role === "Student" ? `<button onclick="completeTask(${t.id})" style="width:auto; background:#10b981; margin:0; padding:5px 10px;">DONE</button>` : `<span>⌛</span>`;
+                let action = role === "Student" ? `<button onclick="completeTask(${t.id})" style="width:auto; background:#10b981; margin:0; padding:5px 10px; font-size:12px;">DONE</button>` : `<span>📋</span>`;
                 div.innerHTML = `<span>${t.text}</span> ${action}`;
                 list.appendChild(div);
             });
         }
 
         window.completeTask = async (id) => {
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            confetti({ particleCount: 150, spread: 60, origin: { y: 0.7 } });
             const ref = doc(db, "users", auth.currentUser.uid);
             const snap = await getDoc(ref);
             const data = snap.data();
@@ -183,7 +205,7 @@
             document.getElementById('task-input').value = "";
         };
 
-        document.getElementById('btn-reset-points').onclick = () => window.addPoints(-99999);
+        document.getElementById('btn-reset-points').onclick = () => window.addPoints(-999999);
         document.getElementById('btn-logout').onclick = () => signOut(auth);
     </script>
 </body>
