@@ -3,63 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homework Hero</title>
+    <title>Homework Hero: Family Edition</title>
     <style>
-        :root { --primary: #6366f1; --bg: #f8fafc; --text: #1e293b; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; text-align: center; }
-        .container { max-width: 400px; margin: 0 auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        :root { --student-color: #6366f1; --parent-color: #ec4899; --bg: #f8fafc; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: #1e293b; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 400px; margin: 0 auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
         .hidden { display: none !important; }
-        h1 { color: var(--primary); margin-bottom: 10px; }
         input { width: 90%; padding: 12px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; }
-        button { width: 95%; padding: 12px; margin: 10px 0; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        button.secondary { background: #94a3b8; }
-        .stats { display: flex; justify-content: space-around; background: #f1f5f9; padding: 10px; border-radius: 10px; margin: 20px 0; }
-        #debug-log { margin-top: 30px; padding: 10px; font-family: monospace; font-size: 12px; color: #ef4444; background: #fee2e2; border-radius: 8px; text-align: left; max-height: 100px; overflow-y: auto; }
-        .task-item { background: #f8fafc; padding: 10px; border-radius: 8px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; }
+        button { width: 95%; padding: 12px; margin: 10px 0; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .btn-student { background: var(--student-color); }
+        .btn-parent { background: var(--parent-color); }
+        .secondary { background: #94a3b8; }
+        .role-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; color: white; font-size: 12px; margin-bottom: 10px; }
+        .task-item { background: #f1f5f9; padding: 10px; border-radius: 8px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; }
+        #debug-log { margin-top: 20px; padding: 10px; font-size: 12px; color: #64748b; background: #f1f5f9; border-radius: 8px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Homework Hero 🦸‍♂️</h1>
+        <h1 id="app-title">Homework Hero 🦸‍♂️</h1>
         
         <div id="login-view">
-            <p>Welcome back! Login to see your tasks.</p>
             <input type="email" id="login-email" placeholder="Email">
             <input type="password" id="login-password" placeholder="Password">
-            <button id="btn-login">Login</button>
-            <button class="secondary" onclick="showView('signup-view')">Create New Account</button>
+            <button class="btn-student" id="btn-login">Login</button>
+            <button class="secondary" onclick="showView('signup-view')">Need an account? Sign Up</button>
         </div>
 
         <div id="signup-view" class="hidden">
-            <p>Ready to be a hero? Join us!</p>
+            <p>Enter <b>4</b> for Student or <b>5</b> for Parent</p>
             <input type="email" id="signup-email" placeholder="Email">
-            <input type="password" id="signup-password" placeholder="Choose a Password">
-            <button id="btn-signup">Sign Up</button>
+            <input type="password" id="signup-password" placeholder="Password">
+            <input type="number" id="access-code" placeholder="Access Code (4 or 5)">
+            <button class="btn-student" id="btn-signup">Create Account</button>
             <button class="secondary" onclick="showView('login-view')">Back to Login</button>
         </div>
 
-        <div id="dashboard-view" class="hidden">
-            <div class="stats">
-                <span>Points: <b id="user-points">0</b></span>
-                <span>User: <b id="user-display-email">...</b></span>
+        <div id="main-view" class="hidden">
+            <div id="role-tag" class="role-badge"></div>
+            <div style="background: #f8fafc; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <span style="font-size: 24px;">Points: <b id="user-points">0</b></span>
             </div>
-            <input type="text" id="task-input" placeholder="What homework do you have?">
-            <button id="btn-add-task">Add Homework</button>
+
+            <div id="student-controls" class="hidden">
+                <input type="text" id="task-input" placeholder="New homework task...">
+                <button class="btn-student" id="btn-add-task">Add Task</button>
+            </div>
+
+            <div id="parent-controls" class="hidden">
+                <p>Viewing Student Progress</p>
+                <button class="btn-parent" id="btn-reset-points">Reset Points to 0</button>
+            </div>
+
             <div id="task-list"></div>
             <button class="secondary" id="btn-logout" style="margin-top:20px;">Logout</button>
         </div>
 
-        <div id="debug-log">System Status: Waiting for input...</div>
+        <div id="debug-log">System: Ready</div>
     </div>
 
     <script type="module">
-        // 1. IMPORT FIREBASE
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-        // 2. YOUR FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyD0HePOf2DBOPzp5XPjkXjxYWuhs7-WQdQ",
             authDomain: "homeworkhero-f2a15.firebaseapp.com",
@@ -69,100 +77,114 @@
             appId: "1:885878491270:web:ea7a5e1c1ce178fd1ea907"
         };
 
-        // 3. INITIALIZE
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        const log = (m) => document.getElementById('debug-log').innerText = "Status: " + m;
 
-        const log = (msg) => { document.getElementById('debug-log').innerText = "Status: " + msg; };
-
-        // 4. NAVIGATION FIX (This makes the buttons work!)
         window.showView = function(viewId) {
-            document.getElementById('login-view').classList.add('hidden');
-            document.getElementById('signup-view').classList.add('hidden');
-            document.getElementById('dashboard-view').classList.add('hidden');
+            ['login-view', 'signup-view', 'main-view'].forEach(v => document.getElementById(v).classList.add('hidden'));
             document.getElementById(viewId).classList.remove('hidden');
-            log("Switched to " + viewId);
         };
 
-        // 5. SIGN UP LOGIC
+        // SIGN UP WITH ROLE CODE
         document.getElementById('btn-signup').onclick = async () => {
             const email = document.getElementById('signup-email').value;
             const pass = document.getElementById('signup-password').value;
+            const code = document.getElementById('access-code').value;
+            
+            let role = "";
+            if(code === "4") role = "Student";
+            else if(code === "5") role = "Parent";
+            else { alert("Use code 4 for Student or 5 for Parent"); return; }
+
             try {
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                await setDoc(doc(db, "users", cred.user.uid), { points: 0, tasks: [] });
-                log("Account Created! Logged in as " + email);
-            } catch (err) { log("Error: " + err.message); }
+                await setDoc(doc(db, "users", cred.user.uid), {
+                    role: role,
+                    points: 0,
+                    tasks: []
+                });
+                log("Account created as " + role);
+            } catch (e) { log(e.message); }
         };
 
-        // 6. LOGIN LOGIC
+        // LOGIN
         document.getElementById('btn-login').onclick = async () => {
             const email = document.getElementById('login-email').value;
             const pass = document.getElementById('login-password').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-                log("Welcome Back!");
-            } catch (err) { log("Login Failed: " + err.message); }
+            try { await signInWithEmailAndPassword(auth, email, pass); } 
+            catch (e) { log(e.message); }
         };
 
-        // 7. DASHBOARD LOGIC
-        onAuthStateChanged(auth, (user) => {
+        // AUTO-NAVIGATE & LOAD DATA
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                showView('dashboard-view');
-                document.getElementById('user-display-email').innerText = user.email;
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                const userData = userDoc.data();
                 
-                // Watch Database for Points and Tasks
-                onSnapshot(doc(db, "users", user.uid), (docSnap) => {
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        document.getElementById('user-points').innerText = data.points || 0;
-                        renderTasks(data.tasks, user.uid, data.points);
-                    }
+                showView('main-view');
+                const roleTag = document.getElementById('role-tag');
+                roleTag.innerText = userData.role;
+                roleTag.style.background = userData.role === "Student" ? "#6366f1" : "#ec4899";
+                
+                if(userData.role === "Student") {
+                    document.getElementById('student-controls').classList.remove('hidden');
+                    document.getElementById('parent-controls').classList.add('hidden');
+                } else {
+                    document.getElementById('parent-controls').classList.remove('hidden');
+                    document.getElementById('student-controls').classList.add('hidden');
+                }
+
+                onSnapshot(doc(db, "users", user.uid), (snap) => {
+                    const data = snap.data();
+                    document.getElementById('user-points').innerText = data.points;
+                    renderTasks(data.tasks, userData.role);
                 });
             } else {
                 showView('login-view');
             }
         });
 
-        // 8. TASK MANAGEMENT
-        document.getElementById('btn-add-task').onclick = async () => {
-            const taskText = document.getElementById('task-input').value;
-            if (!taskText) return;
-            const user = auth.currentUser;
-            try {
-                await updateDoc(doc(db, "users", user.uid), {
-                    tasks: arrayUnion({ text: taskText, id: Date.now() })
-                });
-                document.getElementById('task-input').value = "";
-                log("Task Added!");
-            } catch (err) { log("Error adding task: " + err.message); }
-        };
-
-        function renderTasks(tasks, uid, currentPoints) {
+        function renderTasks(tasks, role) {
             const list = document.getElementById('task-list');
             list.innerHTML = "";
-            tasks.forEach(task => {
+            tasks.forEach(t => {
                 const div = document.createElement('div');
                 div.className = "task-item";
-                div.innerHTML = `<span>${task.text}</span> <button onclick="window.completeTask(${task.id})" style="width: auto; padding: 5px 10px; margin:0;">Done +10</button>`;
+                let actionBtn = role === "Student" 
+                    ? `<button onclick="completeTask(${t.id})" style="width:auto; background:#10b981; margin:0; padding:5px 10px;">Done +10</button>` 
+                    : `<span style="color:#94a3b8; font-size:12px;">Pending</span>`;
+                div.innerHTML = `<span>${t.text}</span> ${actionBtn}`;
                 list.appendChild(div);
             });
         }
 
-        window.completeTask = async (taskId) => {
+        window.completeTask = async (id) => {
             const user = auth.currentUser;
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            const data = userDoc.data();
-            const newTasks = data.tasks.filter(t => t.id !== taskId);
-            const newPoints = (data.points || 0) + 10;
-            await updateDoc(doc(db, "users", user.uid), { tasks: newTasks, points: newPoints });
-            log("Task Complete! +10 Points");
+            const docRef = doc(db, "users", user.uid);
+            const snap = await getDoc(docRef);
+            const data = snap.data();
+            const newTasks = data.tasks.filter(t => t.id !== id);
+            await updateDoc(docRef, { tasks: newTasks, points: data.points + 10 });
+        };
+
+        document.getElementById('btn-add-task').onclick = async () => {
+            const val = document.getElementById('task-input').value;
+            if(!val) return;
+            await updateDoc(doc(db, "users", auth.currentUser.uid), {
+                tasks: arrayUnion({ text: val, id: Date.now() })
+            });
+            document.getElementById('task-input').value = "";
+        };
+
+        document.getElementById('btn-reset-points').onclick = async () => {
+            if(confirm("Are you sure you want to reset points?")) {
+                await updateDoc(doc(db, "users", auth.currentUser.uid), { points: 0 });
+            }
         };
 
         document.getElementById('btn-logout').onclick = () => signOut(auth);
-
-        log("System Ready. All systems green.");
     </script>
 </body>
 </html>
