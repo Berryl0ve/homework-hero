@@ -3,44 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homework Hero | Clean OS</title>
+    <title>Homework Hero | Solo Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --app-bg: #f2f2f7; --card-bg: #ffffff; --text-main: #1c1c1e; --text-sub: #8e8e93; --blue: #007aff; --green: #34c759; --red: #ff3b30; --orange: #ff9500; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--app-bg); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        /* Light/Dark Mode Variables */
+        :root { 
+            --app-bg: #f2f2f7; --card-bg: #ffffff; --text-main: #1c1c1e; --text-sub: #8e8e93; 
+            --blue: #007aff; --green: #34c759; --red: #ff3b30; --orange: #ff9500; --border: #e5e5ea;
+        }
+        body.dark-mode {
+            --app-bg: #000000; --card-bg: #1c1c1e; --text-main: #f8fafc; --text-sub: #94a3b8;
+            --border: #334155;
+        }
+        
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--app-bg); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; transition: background 0.3s, color 0.3s; }
         .app-container { max-width: 450px; width: 100%; }
         .hidden { display: none !important; }
         
-        /* Modern Clean UI */
-        .card { background: var(--card-bg); padding: 24px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); margin-bottom: 20px; }
+        /* UI Elements */
+        .card { background: var(--card-bg); padding: 24px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); margin-bottom: 20px; border: 1px solid var(--border); transition: background 0.3s; }
         h1, h2, h3, h4 { margin-top: 0; font-weight: 700; }
-        p { margin: 0; color: var(--text-sub); font-size: 14px; }
+        p { margin: 0; color: var(--text-sub); font-size: 14px; line-height: 1.4; }
         
         /* Inputs & Buttons */
-        input, select { width: 100%; padding: 16px; margin: 10px 0; background: var(--app-bg); border: none; border-radius: 14px; font-size: 16px; color: var(--text-main); box-sizing: border-box; outline: none; transition: 0.2s; }
-        input:focus { box-shadow: 0 0 0 2px var(--blue); }
-        button { width: 100%; padding: 16px; border-radius: 14px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 5px; }
+        input, select { width: 100%; padding: 14px; margin: 8px 0; background: var(--app-bg); border: 1px solid var(--border); border-radius: 12px; font-size: 15px; color: var(--text-main); box-sizing: border-box; outline: none; transition: 0.2s; }
+        input:focus, select:focus { border-color: var(--blue); }
+        button { width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 5px; }
         button:active { transform: scale(0.98); }
         .btn-primary { background: var(--blue); color: white; }
         .btn-success { background: var(--green); color: white; }
-        .btn-danger { background: var(--red); color: white; }
-        .btn-secondary { background: #e5e5ea; color: var(--text-main); }
+        .btn-danger { background: rgba(255, 59, 48, 0.1); color: var(--red); }
+        .btn-secondary { background: var(--app-bg); color: var(--text-main); border: 1px solid var(--border); }
+        .btn-row { display: flex; gap: 10px; margin-top: 15px; }
         
         /* Tasks */
-        .task-list { display: flex; flex-direction: column; gap: 15px; }
-        .task-card { background: var(--card-bg); padding: 20px; border-radius: 16px; border-left: 6px solid var(--blue); box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-        .task-card.pending { border-left-color: var(--orange); }
-        .task-card.rejected { border-left-color: var(--red); }
+        .task-list { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .task-card { background: var(--card-bg); padding: 20px; border-radius: 16px; border-left: 6px solid var(--blue); border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .task-card.missing { border-left-color: var(--red); }
         .task-card.completed { border-left-color: var(--green); opacity: 0.7; }
-        .task-img { width: 100%; border-radius: 12px; margin-top: 15px; border: 1px solid #e5e5ea; }
         
-        /* Progress & Tabs */
-        .progress-track { background: var(--app-bg); height: 16px; border-radius: 8px; overflow: hidden; margin: 15px 0 5px; }
+        /* Progress, Tabs, Badges */
+        .progress-track { background: var(--app-bg); height: 16px; border-radius: 8px; overflow: hidden; margin: 15px 0 5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
         .progress-fill { background: var(--blue); height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
-        .tab-row { display: flex; gap: 10px; margin-bottom: 15px; background: #e5e5ea; padding: 4px; border-radius: 16px; }
-        .tab { flex: 1; padding: 10px; text-align: center; border-radius: 12px; font-weight: 600; color: var(--text-sub); cursor: pointer; font-size: 14px; }
-        .tab.active { background: white; color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .badge { float: right; font-size: 11px; padding: 4px 8px; border-radius: 20px; font-weight: 700; text-transform: uppercase; color: white; }
+        .tab-row { display: flex; gap: 10px; margin-bottom: 15px; background: var(--app-bg); padding: 4px; border-radius: 16px; border: 1px solid var(--border); }
+        .tab { flex: 1; padding: 10px; text-align: center; border-radius: 12px; font-weight: 600; color: var(--text-sub); cursor: pointer; font-size: 14px; transition: 0.2s; }
+        .tab.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .badge { display: inline-block; font-size: 11px; padding: 4px 8px; border-radius: 20px; font-weight: 700; text-transform: uppercase; color: white; margin-left: 8px; }
+        .level-badge { background: linear-gradient(135deg, #a855f7, #ec4899); color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -48,8 +57,8 @@
 <div class="app-container">
     <div id="view-auth">
         <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="font-size: 32px; color: var(--blue);">Hero</h1>
-            <p>Your secure homework vault.</p>
+            <h1 style="font-size: 32px; color: var(--blue);">Hero Pro</h1>
+            <p>Your ultimate productivity engine.</p>
         </div>
         
         <div class="card">
@@ -57,8 +66,8 @@
                 <div id="tab-login" class="tab active" onclick="setAuthMode('login')">Log In</div>
                 <div id="tab-signup" class="tab" onclick="setAuthMode('signup')">Sign Up</div>
             </div>
-            <input type="text" id="auth-user" placeholder="Your Username" autocomplete="off">
-            <input type="password" id="auth-pin" placeholder="PIN (4 digits = Student, 6 = Parent)">
+            <input type="text" id="auth-user" placeholder="Username" autocomplete="off">
+            <input type="password" id="auth-pass" placeholder="Secure Password">
             <button id="btn-auth" class="btn-primary" onclick="processAuth()">Enter Vault</button>
             <p id="auth-error" style="color: var(--red); text-align: center; margin-top: 15px; display: none;"></p>
         </div>
@@ -67,58 +76,71 @@
     <div id="view-main" class="hidden">
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 id="header-name" style="margin: 0;">Hero</h2>
-                <button onclick="logOut()" class="btn-secondary" style="width: auto; padding: 8px 16px; margin: 0; font-size: 13px;">Log Out</button>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <h2 id="header-name" style="margin: 0;">Hero</h2>
+                    <span id="header-level" class="level-badge">LVL 1</span>
+                </div>
+                <button onclick="toggleDark()" class="btn-secondary" style="width: auto; padding: 8px 12px; margin: 0; font-size: 18px;" title="Toggle Dark Mode">🌙</button>
             </div>
             
             <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                 <div>
-                    <p style="font-size: 12px; font-weight: bold; text-transform: uppercase;">Current Goal</p>
+                    <p style="font-size: 12px; font-weight: bold; text-transform: uppercase; color: var(--blue);">Target Goal</p>
                     <h3 id="goal-title" style="margin: 0;">Loading...</h3>
                 </div>
-                <h2 id="stat-points" style="margin: 0; color: var(--blue);">0 / 0</h2>
+                <div style="text-align: right;">
+                    <h2 id="stat-points" style="margin: 0; color: var(--text-main);">0 / 0</h2>
+                    <p id="stat-xp" style="font-size: 11px;">0 Total XP</p>
+                </div>
             </div>
             <div class="progress-track"><div id="progress-bar" class="progress-fill"></div></div>
         </div>
 
-        <div id="ui-student" class="hidden">
-            <div class="card">
-                <h3>Create Mission</h3>
-                <input type="text" id="task-name" placeholder="Assignment (e.g., Read Ch. 4)">
-                <div style="display: flex; gap: 10px;">
-                    <select id="task-subject">
-                        <option value="Math">Math</option><option value="Science">Science</option><option value="English">English</option><option value="History">History</option>
-                    </select>
-                    <input type="date" id="task-date">
+        <div class="card">
+            <h3>+ Add Mission</h3>
+            <input type="text" id="task-name" placeholder="Assignment (e.g., Essay Draft)">
+            <input type="text" id="task-notes" placeholder="Notes (e.g., Min 500 words, MLA format)">
+            <div style="display: flex; gap: 10px;">
+                <select id="task-subject">
+                    <option value="Math">Math</option><option value="Science">Science</option><option value="English">English</option><option value="History">History</option><option value="Other">Other</option>
+                </select>
+                <input type="date" id="task-date">
+            </div>
+            <button class="btn-primary" onclick="addTask()">Add to Mission Log</button>
+        </div>
+
+        <div class="card">
+            <details>
+                <summary style="font-weight: 600; cursor: pointer; color: var(--text-sub);">⚙️ Edit Goal & Shop</summary>
+                <input type="text" id="goal-input-name" placeholder="What are you saving for?">
+                <input type="number" id="goal-input-val" placeholder="Total points needed">
+                <div class="btn-row">
+                    <button class="btn-primary" onclick="updateGoal()">Save Goal</button>
+                    <button class="btn-secondary" onclick="spendPoints()">Spend Points</button>
                 </div>
-                <button class="btn-primary" onclick="addTask()">Assign to Me</button>
-            </div>
-
-            <div class="card">
-                <details>
-                    <summary style="font-weight: 600; cursor: pointer; color: var(--blue);">Edit Goal Settings</summary>
-                    <input type="text" id="goal-input-name" placeholder="What are you saving for?">
-                    <input type="number" id="goal-input-val" placeholder="Total points needed">
-                    <button class="btn-secondary" onclick="updateGoal()">Save Goal</button>
-                </details>
-            </div>
+                <p style="margin-top: 10px; font-size: 12px;">"Spend Points" subtracts from your current balance when you buy a real-life reward, but keeps your lifetime XP safe!</p>
+            </details>
         </div>
 
-        <div id="ui-parent" class="hidden card" style="border: 2px solid var(--orange);">
-            <h3 style="color: var(--orange);">Parent Controls</h3>
-            <p style="margin-bottom: 15px;">Review pending missions below. Use this button only if you want to reset the student's current points to zero.</p>
-            <button class="btn-secondary" style="color: var(--red);" onclick="resetPoints()">Wipe All Points</button>
+        <div class="tab-row" style="margin-top: 25px;">
+            <div id="tab-active" class="tab active" onclick="switchView('active')">Active List</div>
+            <div id="tab-completed" class="tab" onclick="switchView('completed')">Completed Log</div>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin: 25px 5px 10px;">
-            <h3>Your Missions</h3>
-            <div style="display: flex; gap: 15px; font-size: 14px;">
-                <span id="filter-active" style="cursor: pointer; font-weight: 700; color: var(--blue);" onclick="toggleHistory(false)">Active</span>
-                <span id="filter-history" style="cursor: pointer; color: var(--text-sub);" onclick="toggleHistory(true)">History</span>
-            </div>
+        <div id="view-active">
+            <h4 id="missing-header" style="color: var(--red); margin-bottom: 10px; display: none;">🚨 Overdue</h4>
+            <div id="missing-container" class="task-list"></div>
+            
+            <h4 id="assigned-header" style="color: var(--blue); margin-bottom: 10px; display: none;">📅 Upcoming</h4>
+            <div id="assigned-container" class="task-list"></div>
         </div>
 
-        <div id="mission-container" class="task-list"></div>
+        <div id="view-completed" class="hidden">
+            <h4 style="color: var(--green); margin-bottom: 10px;">✅ Finished</h4>
+            <div id="completed-container" class="task-list"></div>
+        </div>
+        
+        <button onclick="logOut()" class="btn-secondary" style="margin-top: 20px; color: var(--red);">Log Out Securely</button>
     </div>
 </div>
 
@@ -127,7 +149,6 @@
     import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-    // IMPORTANT: To make it save forever, replace these keys with your own Firebase project keys later.
     const firebaseConfig = {
         apiKey: "AIzaSyD0HePOf2DBOPzp5XPjkXjxYWuhs7-WQdQ",
         authDomain: "homeworkhero-f2a15.firebaseapp.com",
@@ -140,11 +161,18 @@
     const auth = getAuth(app);
 
     let authMode = 'login';
-    let sessionUser = null;
-    let vaultData = null;
-    let showHistory = false;
+    let currentUsername = null;
+    let currentUserUID = null;
+    let vaultData = { points: 0, totalXP: 0, goalName: "Set a goal!", goalPoints: 100, tasks: [] };
 
-    // --- UI LOGIC ---
+    // --- DARK MODE LOGIC ---
+    if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+    window.toggleDark = () => {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+    };
+
+    // --- UI CONTROLS ---
     window.setAuthMode = (mode) => {
         authMode = mode;
         document.getElementById('tab-login').classList.toggle('active', mode === 'login');
@@ -153,49 +181,42 @@
         document.getElementById('auth-error').style.display = 'none';
     };
 
-    window.toggleHistory = (show) => {
-        showHistory = show;
-        document.getElementById('filter-active').style.color = show ? 'var(--text-sub)' : 'var(--blue)';
-        document.getElementById('filter-active').style.fontWeight = show ? 'normal' : '700';
-        document.getElementById('filter-history').style.color = show ? 'var(--blue)' : 'var(--text-sub)';
-        document.getElementById('filter-history').style.fontWeight = show ? '700' : 'normal';
-        renderTasks();
+    window.switchView = (view) => {
+        document.getElementById('tab-active').classList.toggle('active', view === 'active');
+        document.getElementById('tab-completed').classList.toggle('active', view === 'completed');
+        document.getElementById('view-active').classList.toggle('hidden', view !== 'active');
+        document.getElementById('view-completed').classList.toggle('hidden', view !== 'completed');
     };
 
     const showError = (msg) => {
         const el = document.getElementById('auth-error');
-        el.innerText = msg;
-        el.style.display = 'block';
+        el.innerText = msg; el.style.display = 'block';
     };
 
     // --- AUTHENTICATION ---
     window.processAuth = async () => {
         const user = document.getElementById('auth-user').value.toLowerCase().trim();
-        const pin = document.getElementById('auth-pin').value;
-        
-        if (user.length < 2 || pin.length < 4) return showError("Name and PIN are required.");
-
-        const isParent = pin.length >= 6;
-        const email = `${user}${isParent ? '_p' : '_s'}@heroapp.com`;
-        const pass = `hero_${pin}`; // Ensure passwords meet Firebase minimums
+        const passRaw = document.getElementById('auth-pass').value;
+        if (user.length < 2 || passRaw.length < 6) return showError("Need a username and 6+ char password.");
+        const email = `${user}@herosolo.com`;
 
         try {
-            if (authMode === 'login') {
-                await signInWithEmailAndPassword(auth, email, pass);
-            } else {
-                const res = await createUserWithEmailAndPassword(auth, email, pass);
-                await setDoc(doc(db, "users", res.user.uid), { name: user, role: isParent ? "Parent" : "Student" });
+            if (authMode === 'login') await signInWithEmailAndPassword(auth, email, passRaw);
+            else {
+                const res = await createUserWithEmailAndPassword(auth, email, passRaw);
+                await setDoc(doc(db, "users", res.user.uid), { name: user });
             }
         } catch (e) {
-            showError(authMode === 'login' ? "Incorrect PIN or Username." : "Username already exists.");
+            showError(authMode === 'login' ? "Incorrect Password or Username." : "Username taken!");
         }
     };
 
     onAuthStateChanged(auth, async (u) => {
         if (u) {
+            currentUserUID = u.uid;
             const snap = await getDoc(doc(db, "users", u.uid));
             if(snap.exists()) {
-                sessionUser = snap.data();
+                currentUsername = snap.data().name;
                 bootApp();
             }
         } else {
@@ -208,18 +229,15 @@
     function bootApp() {
         document.getElementById('view-auth').classList.add('hidden');
         document.getElementById('view-main').classList.remove('hidden');
-        
-        const isPar = sessionUser.role === "Parent";
-        document.getElementById('header-name').innerText = `${sessionUser.name} (${sessionUser.role})`;
-        document.getElementById('ui-student').classList.toggle('hidden', isPar);
-        document.getElementById('ui-parent').classList.toggle('hidden', !isPar);
+        document.getElementById('header-name').innerText = currentUsername;
 
-        // Connect to the shared vault
-        onSnapshot(doc(db, "vaults", sessionUser.name), async (snap) => {
+        onSnapshot(doc(db, "vaults", currentUserUID), async (snap) => {
             if (!snap.exists()) {
-                await setDoc(doc(db, "vaults", sessionUser.name), { points: 0, goalName: "Set a goal!", goalPoints: 100, activeTasks: [], historyTasks: [] });
+                await setDoc(doc(db, "vaults", currentUserUID), { points: 0, totalXP: 0, goalName: "Set a goal!", goalPoints: 100, tasks: [] });
             } else {
                 vaultData = snap.data();
+                if(!vaultData.tasks) vaultData.tasks = [];
+                if(vaultData.totalXP === undefined) vaultData.totalXP = vaultData.points || 0;
                 updateDashboard();
                 renderTasks();
             }
@@ -227,129 +245,115 @@
     }
 
     function updateDashboard() {
+        const level = Math.floor(vaultData.totalXP / 100) + 1;
+        document.getElementById('header-level').innerText = `LVL ${level}`;
         document.getElementById('goal-title').innerText = vaultData.goalName;
         document.getElementById('stat-points').innerText = `${vaultData.points} / ${vaultData.goalPoints}`;
+        document.getElementById('stat-xp').innerText = `${vaultData.totalXP} Lifetime XP`;
         
         let percentage = (vaultData.points / Math.max(vaultData.goalPoints, 1)) * 100;
         if(percentage > 100) percentage = 100;
         document.getElementById('progress-bar').style.width = percentage + "%";
-        
-        if (percentage >= 100 && vaultData.points > 0) {
-            document.getElementById('progress-bar').style.background = 'var(--green)';
-        } else {
-            document.getElementById('progress-bar').style.background = 'var(--blue)';
-        }
+        document.getElementById('progress-bar').style.background = (percentage >= 100 && vaultData.points > 0) ? 'var(--green)' : 'var(--blue)';
     }
 
     function renderTasks() {
-        const container = document.getElementById('mission-container');
-        container.innerHTML = "";
-        const isPar = sessionUser.role === "Parent";
+        const missingContainer = document.getElementById('missing-container');
+        const assignedContainer = document.getElementById('assigned-container');
+        const completedContainer = document.getElementById('completed-container');
         
-        const listToRender = showHistory ? (vaultData.historyTasks || []) : (vaultData.activeTasks || []);
-        
-        if (listToRender.length === 0) {
-            container.innerHTML = `<p style="text-align:center; padding: 20px;">No missions here yet.</p>`;
-            return;
-        }
+        missingContainer.innerHTML = ""; assignedContainer.innerHTML = ""; completedContainer.innerHTML = "";
+        let hasMissing = false; let hasAssigned = false;
+        const todayStr = new Date().toLocaleDateString('en-CA');
 
-        // Sort by date (newest/due soonest)
-        listToRender.sort((a, b) => new Date(a.due) - new Date(b.due)).forEach(task => {
+        vaultData.tasks.sort((a, b) => new Date(a.due) - new Date(b.due)).forEach(task => {
             const card = document.createElement('div');
-            card.className = `task-card ${task.status}`;
             
-            let badgeColor = "var(--blue)";
-            if (task.status === "pending") badgeColor = "var(--orange)";
-            if (task.status === "rejected") badgeColor = "var(--red)";
-            if (task.status === "completed") badgeColor = "var(--green)";
+            if (task.status === 'completed') {
+                card.className = "task-card completed";
+                card.innerHTML = `
+                    <p style="font-weight: 600; font-size: 12px;">${task.subject} <span class="badge" style="background: var(--green)">DONE</span></p>
+                    <h3 style="margin: 5px 0;">${task.name}</h3>
+                    ${task.notes ? `<p style="margin-top: 5px;"><i>${task.notes}</i></p>` : ''}
+                `;
+                completedContainer.appendChild(card);
+            } else {
+                const isMissing = task.due < todayStr;
+                card.className = `task-card ${isMissing ? 'missing' : 'active'}`;
+                if (isMissing) hasMissing = true; else hasAssigned = true;
 
-            card.innerHTML = `
-                <span class="badge" style="background: ${badgeColor}">${task.status}</span>
-                <p style="font-weight: 600;">${task.subject} • Due: ${task.due}</p>
-                <h3 style="margin: 5px 0 0 0; font-size: 20px;">${task.name}</h3>
-                
-                ${task.img ? `<img src="${task.img}" class="task-img">` : ''}
-                
-                ${!showHistory && task.status === 'assigned' && !isPar ? `
-                    <p style="margin-top: 15px; font-weight: 600;">Upload proof to finish:</p>
-                    <input type="file" style="padding: 10px; border: 1px dashed #ccc;" onchange="uploadImage(${task.id}, this)">
-                ` : ''}
-                
-                ${!showHistory && isPar && task.status === 'pending' ? `
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button class="btn-success" onclick="reviewTask(${task.id}, true)">Approve (+15)</button>
-                        <button class="btn-danger" onclick="reviewTask(${task.id}, false)">Reject</button>
+                card.innerHTML = `
+                    <p style="font-weight: 600; font-size: 12px; color: ${isMissing ? 'var(--red)' : 'var(--text-sub)'};">${task.subject} • Due: ${task.due} 
+                    <span class="badge" style="background: ${isMissing ? 'var(--red)' : 'var(--blue)'}">${isMissing ? 'LATE' : 'UPCOMING'}</span></p>
+                    <h3 style="margin: 5px 0;">${task.name}</h3>
+                    ${task.notes ? `<p style="margin-top: 5px; background: var(--app-bg); padding: 10px; border-radius: 8px;">${task.notes}</p>` : ''}
+                    
+                    <div class="btn-row">
+                        <button class="btn-success" style="flex: 2;" onclick="completeTask(${task.id})">✅ Complete (+15 PTS)</button>
+                        <button class="btn-danger" style="flex: 1;" onclick="deleteTask(${task.id})">🗑️ Drop</button>
                     </div>
-                ` : ''}
-            `;
-            container.appendChild(card);
+                `;
+                
+                if (isMissing) missingContainer.appendChild(card);
+                else assignedContainer.appendChild(card);
+            }
         });
+
+        document.getElementById('missing-header').style.display = hasMissing ? 'block' : 'none';
+        document.getElementById('assigned-header').style.display = hasAssigned ? 'block' : 'none';
+        
+        if (!hasMissing && !hasAssigned) assignedContainer.innerHTML = `<p style="text-align:center; padding: 20px;">All caught up! Add a mission above.</p>`;
+        if (completedContainer.innerHTML === "") completedContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Finished tasks appear here.</p>`;
     }
 
     // --- DATA ACTIONS ---
     window.addTask = async () => {
         const name = document.getElementById('task-name').value;
+        const notes = document.getElementById('task-notes').value;
         const sub = document.getElementById('task-subject').value;
         const due = document.getElementById('task-date').value;
-        if(!name || !due) return alert("Please fill out the assignment name and date.");
+        if(!name || !due) return alert("Assignment name and due date are required!");
         
-        await updateDoc(doc(db, "vaults", sessionUser.name), {
-            activeTasks: arrayUnion({ id: Date.now(), name, subject: sub, due, status: 'assigned', img: '' })
-        });
+        const newTask = { id: Date.now(), name, notes, subject: sub, due, status: 'active' };
+        await updateDoc(doc(db, "vaults", currentUserUID), { tasks: arrayUnion(newTask) });
+        
         document.getElementById('task-name').value = "";
+        document.getElementById('task-notes').value = "";
     };
 
     window.updateGoal = async () => {
         const name = document.getElementById('goal-input-name').value;
         const points = document.getElementById('goal-input-val').value;
         if(!name || !points) return;
-        await updateDoc(doc(db, "vaults", sessionUser.name), { goalName: name, goalPoints: parseInt(points) });
-        document.getElementById('goal-input-name').value = "";
-        document.getElementById('goal-input-val').value = "";
+        await updateDoc(doc(db, "vaults", currentUserUID), { goalName: name, goalPoints: parseInt(points) });
+        document.getElementById('goal-input-name').value = ""; document.getElementById('goal-input-val').value = "";
     };
 
-    window.uploadImage = async (taskId, inputElement) => {
-        const file = inputElement.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const updatedTasks = vaultData.activeTasks.map(t => t.id === taskId ? {...t, status: 'pending', img: e.target.result} : t);
-            await updateDoc(doc(db, "vaults", sessionUser.name), { activeTasks: updatedTasks });
-        };
-        reader.readAsDataURL(file);
-    };
-
-    window.reviewTask = async (taskId, approved) => {
-        const targetTask = vaultData.activeTasks.find(t => t.id === taskId);
-        let newActive = vaultData.activeTasks.filter(t => t.id !== taskId);
-        let pointsToAdd = 0;
-
-        if (approved) {
-            targetTask.status = "completed";
-            pointsToAdd = 15;
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-            
-            // Move to history
-            await updateDoc(doc(db, "vaults", sessionUser.name), { 
-                activeTasks: newActive, 
-                historyTasks: arrayUnion(targetTask),
-                points: vaultData.points + pointsToAdd
-            });
-        } else {
-            const reason = prompt("Why does this need to be fixed?");
-            if (reason === null) return; // Cancelled
-            targetTask.status = "rejected";
-            targetTask.name = `${targetTask.name} (Fix: ${reason})`;
-            targetTask.img = ""; // Force them to take a new photo
-            newActive.push(targetTask);
-            
-            await updateDoc(doc(db, "vaults", sessionUser.name), { activeTasks: newActive });
+    window.spendPoints = async () => {
+        const cost = prompt("How many points did you spend on your reward?");
+        if(cost && !isNaN(cost)) {
+            let newTotal = vaultData.points - parseInt(cost);
+            if(newTotal < 0) newTotal = 0;
+            await updateDoc(doc(db, "vaults", currentUserUID), { points: newTotal });
+            alert(`Enjoy your reward! You now have ${newTotal} points left towards your next goal.`);
         }
     };
 
-    window.resetPoints = async () => {
-        if(confirm("Are you sure you want to reset their points to 0?")) {
-            await updateDoc(doc(db, "vaults", sessionUser.name), { points: 0 });
+    window.completeTask = async (taskId) => {
+        const updatedTasks = vaultData.tasks.map(t => t.id === taskId ? {...t, status: 'completed'} : t);
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+        
+        await updateDoc(doc(db, "vaults", currentUserUID), { 
+            tasks: updatedTasks,
+            points: vaultData.points + 15,
+            totalXP: vaultData.totalXP + 15
+        });
+    };
+
+    window.deleteTask = async (taskId) => {
+        if(confirm("Are you sure you want to delete this assignment without getting points?")) {
+            const updatedTasks = vaultData.tasks.filter(t => t.id !== taskId);
+            await updateDoc(doc(db, "vaults", currentUserUID), { tasks: updatedTasks });
         }
     };
 
