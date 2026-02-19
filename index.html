@@ -69,7 +69,7 @@
             <input type="text" id="auth-user" placeholder="Username" autocomplete="off">
             <input type="password" id="auth-pass" placeholder="Secure Password">
             <button id="btn-auth" class="btn-primary" onclick="processAuth()">Enter Vault</button>
-            <p id="auth-error" style="color: var(--red); text-align: center; margin-top: 15px; display: none;"></p>
+            <p id="auth-error" style="color: var(--red); text-align: center; margin-top: 15px; font-weight: 600; display: none;"></p>
         </div>
     </div>
 
@@ -77,7 +77,7 @@
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <h2 id="header-name" style="margin: 0;">Hero</h2>
+                    <h2 id="header-name" style="margin: 0; text-transform: capitalize;">Hero</h2>
                     <span id="header-level" class="level-badge">LVL 1</span>
                 </div>
                 <button onclick="toggleDark()" class="btn-secondary" style="width: auto; padding: 8px 12px; margin: 0; font-size: 18px;" title="Toggle Dark Mode">🌙</button>
@@ -196,21 +196,34 @@
         el.innerText = msg; el.style.display = 'block';
     };
 
-    // --- AUTHENTICATION ---
+    // --- BULLETPROOF AUTHENTICATION ---
     window.processAuth = async () => {
-        const user = document.getElementById('auth-user').value.toLowerCase().trim();
+        // This math strips out accidental spaces or weird symbols that break Firebase
+        let rawUser = document.getElementById('auth-user').value.toLowerCase().trim();
+        let cleanUser = rawUser.replace(/[^a-z0-9]/g, ''); 
         const passRaw = document.getElementById('auth-pass').value;
-        if (user.length < 2 || passRaw.length < 6) return showError("Need a username and 6+ char password.");
-        const email = `${user}@herosolo.com`;
+        
+        if (cleanUser.length < 2 || passRaw.length < 6) {
+            return showError("Need a username and 6+ char password.");
+        }
+        
+        const email = `${cleanUser}@herosolo.com`;
 
         try {
-            if (authMode === 'login') await signInWithEmailAndPassword(auth, email, passRaw);
-            else {
+            if (authMode === 'login') {
+                await signInWithEmailAndPassword(auth, email, passRaw);
+            } else {
                 const res = await createUserWithEmailAndPassword(auth, email, passRaw);
-                await setDoc(doc(db, "users", res.user.uid), { name: user });
+                // Save the display name cleanly
+                await setDoc(doc(db, "users", res.user.uid), { name: cleanUser });
             }
         } catch (e) {
-            showError(authMode === 'login' ? "Incorrect Password or Username." : "Username taken or Firebase setup incomplete!");
+            // Your custom error messages right here!
+            if (authMode === 'login') {
+                showError("Incorrect Password or Username.");
+            } else {
+                showError("This username is taken");
+            }
         }
     };
 
@@ -220,6 +233,10 @@
             const snap = await getDoc(doc(db, "users", u.uid));
             if(snap.exists()) {
                 currentUsername = snap.data().name;
+                bootApp();
+            } else {
+                // Failsafe in case network dropped during sign up
+                currentUsername = "Hero";
                 bootApp();
             }
         } else {
