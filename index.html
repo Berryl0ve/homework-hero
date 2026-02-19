@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homework Hero: Family Link</title>
+    <title>Homework Hero</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --student: #6366f1; --parent: #ec4899; --bg: #f8fafc; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); color: #1e293b; margin: 0; padding: 20px; text-align: center; }
         .container { max-width: 400px; margin: 0 auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
         .hidden { display: none !important; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
-        button { width: 95%; padding: 12px; margin: 10px 0; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 18px; text-align: center; outline: none; }
+        button { width: 95%; padding: 12px; margin: 10px 0; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; }
         .btn-student { background: var(--student); }
         .btn-parent { background: var(--parent); }
         .secondary { background: #94a3b8; }
-        .role-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; color: white; font-size: 12px; margin-bottom: 10px; }
         .task-item { background: #f1f5f9; padding: 12px; border-radius: 12px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; }
-        #debug-log { margin-top: 20px; padding: 10px; font-size: 11px; color: #64748b; background: #f1f5f9; border-radius: 8px; }
+        #status-log { margin-top: 20px; font-size: 11px; color: #94a3b8; }
     </style>
 </head>
 <body>
@@ -26,55 +25,47 @@
         <h1>Homework Hero 🦸‍♂️</h1>
         
         <div id="login-view">
-            <input type="text" id="login-user" placeholder="Username">
-            <input type="password" id="login-password" placeholder="Password">
-            <button class="btn-student" id="btn-login">Login</button>
+            <h3>Login</h3>
+            <input type="number" id="login-code" placeholder="Enter Your Code">
+            <button class="btn-student" id="btn-login">Open Vault</button>
             <button class="secondary" onclick="showView('signup-view')">Create New Account</button>
         </div>
 
         <div id="signup-view" class="hidden">
-            <p>I am a:</p>
-            <div style="display:flex; gap:10px; margin-bottom:10px;">
-                <button id="pick-student" class="secondary" style="margin:0;">Student</button>
-                <button id="pick-parent" class="secondary" style="margin:0;">Parent</button>
-            </div>
-            <input type="text" id="signup-user" placeholder="Choose Username">
-            <input type="password" id="signup-password" placeholder="Choose Password">
-            <input type="number" id="family-code" placeholder="Enter 5-Digit Family Code">
-            <button class="btn-student" id="btn-signup">Finish Sign Up</button>
-            <button class="secondary" onclick="showView('login-view')">Back</button>
+            <h3>Sign Up</h3>
+            <p style="font-size: 13px;">Student: <b>4 Digits</b> | Parent: <b>5 Digits</b></p>
+            <input type="number" id="signup-code" placeholder="Pick Your Code">
+            <button class="btn-student" id="btn-signup-action">Register Code</button>
+            <button class="secondary" onclick="showView('login-view')">Back to Login</button>
         </div>
 
         <div id="main-view" class="hidden">
-            <div id="role-tag" class="role-badge"></div>
+            <div id="role-tag" style="display:inline-block; padding:5px 15px; border-radius:20px; color:white; font-size:12px; margin-bottom:10px;"></div>
+            
             <div style="background: #f8fafc; padding: 15px; border-radius: 15px; border: 2px dashed #e2e8f0; margin-bottom: 15px;">
-                <span style="font-size: 28px; font-weight: bold;" id="user-points">0</span><br>
-                <small>POINTS</small>
+                <span style="font-size: 32px; font-weight: bold;" id="points-display">0</span><br>
+                <small>TOTAL POINTS</small>
             </div>
 
-            <div id="student-controls" class="hidden">
-                <input type="text" id="task-input" placeholder="New Homework Task...">
+            <div id="student-zone" class="hidden">
+                <input type="text" id="task-input" placeholder="New Mission...">
                 <button class="btn-student" id="btn-add-task">Add Task</button>
             </div>
 
-            <div id="parent-controls" class="hidden">
-                <div style="margin-bottom: 15px; padding: 10px; background: #fff1f2; border-radius: 10px;">
-                    <p style="margin:0; font-size:12px;">PARENT PANEL</p>
-                    <button class="btn-parent" id="btn-reset-points">Reset Points to Zero</button>
-                </div>
+            <div id="parent-zone" class="hidden">
+                <button class="btn-parent" id="btn-reset-points">Reset Student Points</button>
             </div>
 
-            <div id="task-list"></div>
-            <button class="secondary" id="btn-logout" style="margin-top:25px;">Sign Out</button>
+            <div id="task-list" style="margin-top: 20px;"></div>
+            <button class="secondary" onclick="location.reload()">Logout</button>
         </div>
 
-        <div id="debug-log">Status: Ready</div>
+        <div id="status-log">Status: Ready</div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, onSnapshot, query, where, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD0HePOf2DBOPzp5XPjkXjxYWuhs7-WQdQ",
@@ -87,122 +78,104 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const auth = getAuth(app);
-        const log = (m) => document.getElementById('debug-log').innerText = "Status: " + m;
-        const ghostEmail = (u) => u.trim().toLowerCase() + "@hero.com";
+        const log = (m) => document.getElementById('status-log').innerText = "Status: " + m;
 
-        let selectedRole = "Student";
+        let activeCode = "";
+        let isParent = false;
+        let vaultID = "";
 
         window.showView = (id) => {
             ['login-view', 'signup-view', 'main-view'].forEach(v => document.getElementById(v).classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
         };
 
-        document.getElementById('pick-student').onclick = () => { selectedRole = "Student"; document.getElementById('pick-student').style.background = "#6366f1"; document.getElementById('pick-parent').style.background = "#94a3b8"; };
-        document.getElementById('pick-parent').onclick = () => { selectedRole = "Parent"; document.getElementById('pick-parent').style.background = "#ec4899"; document.getElementById('pick-student').style.background = "#94a3b8"; };
+        // SIGN UP
+        document.getElementById('btn-signup-action').onclick = async () => {
+            const code = document.getElementById('signup-code').value.trim();
+            if (code.length < 4 || code.length > 5) return alert("Codes must be 4 or 5 digits!");
 
-        document.getElementById('btn-signup').onclick = async () => {
-            const user = document.getElementById('signup-user').value.trim();
-            const pass = document.getElementById('signup-password').value;
-            const code = document.getElementById('family-code').value.trim();
+            const vID = (code.length === 5) ? code.substring(0, 4) : code;
+            const docRef = doc(db, "vaults", vID);
+            const snap = await getDoc(docRef);
 
-            if(!user || pass.length < 6 || code.length < 1) {
-                alert("Please fill all boxes! (Password must be 6+ characters)");
-                return;
+            if (!snap.exists()) {
+                await setDoc(docRef, { points: 0, tasks: [] });
+                log("New Vault Created!");
+            } else {
+                log("Linked to Existing Vault");
             }
-
-            try {
-                const cred = await createUserWithEmailAndPassword(auth, ghostEmail(user), pass);
-                await setDoc(doc(db, "users", cred.user.uid), {
-                    username: user,
-                    role: selectedRole,
-                    familyCode: code,
-                    points: 0,
-                    tasks: []
-                });
-                log("Account Created!");
-            } catch (e) { log(e.message); }
+            alert("Code Registered! Now Login.");
+            showView('login-view');
         };
 
+        // LOGIN
         document.getElementById('btn-login').onclick = async () => {
-            const user = document.getElementById('login-user').value;
-            const pass = document.getElementById('login-password').value;
-            try { await signInWithEmailAndPassword(auth, ghostEmail(user), pass); } 
-            catch (e) { log("Login failed. Check info."); }
+            const code = document.getElementById('login-code').value.trim();
+            if (!code) return;
+
+            activeCode = code;
+            isParent = (code.length === 5);
+            vaultID = isParent ? code.substring(0, 4) : code;
+
+            const docRef = doc(db, "vaults", vaultID);
+            const snap = await getDoc(docRef);
+
+            if (snap.exists()) {
+                showView('main-view');
+                const tag = document.getElementById('role-tag');
+                tag.innerText = isParent ? "PARENT" : "STUDENT";
+                tag.style.background = isParent ? "#ec4899" : "#6366f1";
+                
+                document.getElementById('student-zone').classList.toggle('hidden', isParent);
+                document.getElementById('parent-zone').classList.toggle('hidden', !isParent);
+
+                onSnapshot(docRef, (doc) => {
+                    const data = doc.data();
+                    document.getElementById('points-display').innerText = data.points;
+                    renderTasks(data.tasks);
+                });
+            } else {
+                alert("Code not found. Please Sign Up first!");
+            }
         };
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                const userData = userDoc.data();
-                showView('main-view');
-                
-                const tag = document.getElementById('role-tag');
-                tag.innerText = userData.role;
-                tag.style.background = userData.role === "Student" ? "#6366f1" : "#ec4899";
-
-                // Setup Visibility
-                document.getElementById('student-controls').classList.toggle('hidden', userData.role !== "Student");
-                document.getElementById('parent-controls').classList.toggle('hidden', userData.role !== "Parent");
-
-                // Points & Tasks Listener
-                // If Parent, we listen to the STUDENT with the same family code
-                let targetUID = user.uid;
-                if(userData.role === "Parent") {
-                    const q = query(collection(db, "users"), where("familyCode", "==", userData.familyCode), where("role", "==", "Student"));
-                    const querySnap = await getDocs(q);
-                    if(!querySnap.empty) targetUID = querySnap.docs[0].id;
-                }
-
-                onSnapshot(doc(db, "users", targetUID), (snap) => {
-                    const data = snap.data();
-                    document.getElementById('user-points').innerText = data.points;
-                    renderTasks(data.tasks, userData.role, targetUID);
-                });
-            } else { showView('login-view'); }
-        });
-
-        function renderTasks(tasks, role, targetUID) {
+        function renderTasks(tasks) {
             const list = document.getElementById('task-list');
-            list.innerHTML = tasks.length ? "" : "<p>No tasks yet.</p>";
+            list.innerHTML = tasks.length ? "" : "<p style='color:#94a3b8'>No missions.</p>";
             tasks.forEach(t => {
                 const div = document.createElement('div');
                 div.className = "task-item";
-                let action = role === "Student" ? `<button onclick="completeTask('${targetUID}', ${t.id})" style="width:auto; background:#10b981; margin:0; padding:5px 10px;">DONE</button>` : `<span>📋</span>`;
-                div.innerHTML = `<span>${t.text}</span> ${action}`;
+                let btn = !isParent ? `<button onclick="doneTask(${t.id})" style="width:auto; background:#10b981; margin:0; padding:5px 10px;">DONE</button>` : `<span>📋</span>`;
+                div.innerHTML = `<span>${t.text}</span> ${btn}`;
                 list.appendChild(div);
             });
         }
 
-        window.completeTask = async (uid, taskId) => {
+        window.doneTask = async (tid) => {
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            const ref = doc(db, "users", uid);
+            const ref = doc(db, "vaults", vaultID);
             const snap = await getDoc(ref);
             const data = snap.data();
-            const newTasks = data.tasks.filter(t => t.id !== taskId);
-            await updateDoc(ref, { tasks: newTasks, points: (data.points || 0) + 10 });
+            await updateDoc(ref, { 
+                tasks: data.tasks.filter(x => x.id !== tid), 
+                points: data.points + 10 
+            });
         };
 
         document.getElementById('btn-add-task').onclick = async () => {
             const val = document.getElementById('task-input').value;
             if(!val) return;
-            await updateDoc(doc(db, "users", auth.currentUser.uid), {
-                tasks: arrayUnion({ text: val, id: Date.now() })
+            await updateDoc(doc(db, "vaults", vaultID), { 
+                tasks: arrayUnion({ text: val, id: Date.now() }) 
             });
             document.getElementById('task-input').value = "";
         };
 
         document.getElementById('btn-reset-points').onclick = async () => {
-            const userData = (await getDoc(doc(db, "users", auth.currentUser.uid))).data();
-            const q = query(collection(db, "users"), where("familyCode", "==", userData.familyCode), where("role", "==", "Student"));
-            const querySnap = await getDocs(q);
-            if(!querySnap.empty) {
-                await updateDoc(doc(db, "users", querySnap.docs[0].id), { points: 0 });
-                log("Student points reset!");
+            if(confirm("Reset points?")) {
+                await updateDoc(doc(db, "vaults", vaultID), { points: 0 });
             }
         };
-
-        document.getElementById('btn-logout').onclick = () => signOut(auth);
     </script>
 </body>
 </html>
