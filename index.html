@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -196,9 +196,8 @@
         el.innerText = msg; el.style.display = 'block';
     };
 
-    // --- BULLETPROOF AUTHENTICATION ---
+    // --- DIAGNOSTIC AUTHENTICATION ---
     window.processAuth = async () => {
-        // This math strips out accidental spaces or weird symbols that break Firebase
         let rawUser = document.getElementById('auth-user').value.toLowerCase().trim();
         let cleanUser = rawUser.replace(/[^a-z0-9]/g, ''); 
         const passRaw = document.getElementById('auth-pass').value;
@@ -214,16 +213,11 @@
                 await signInWithEmailAndPassword(auth, email, passRaw);
             } else {
                 const res = await createUserWithEmailAndPassword(auth, email, passRaw);
-                // Save the display name cleanly
                 await setDoc(doc(db, "users", res.user.uid), { name: cleanUser });
             }
         } catch (e) {
-            // Your custom error messages right here!
-            if (authMode === 'login') {
-                showError("Incorrect Password or Username.");
-            } else {
-                showError("This username is taken");
-            }
+            // DIAGNOSTIC TRICK: This will spit out the raw Firebase error!
+            showError("FIREBASE ERROR: " + e.code + " - " + e.message);
         }
     };
 
@@ -235,7 +229,6 @@
                 currentUsername = snap.data().name;
                 bootApp();
             } else {
-                // Failsafe in case network dropped during sign up
                 currentUsername = "Hero";
                 bootApp();
             }
